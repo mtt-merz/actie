@@ -5,44 +5,46 @@ import os
 from typing import Optional
 import typer
 
-from command_line import __app_name__, __version__
-import actie
+from actie import __app_name__, __version__, Actor
+from actie.samples.counter import Counter
 
 
 app = typer.Typer()
 
+
 @app.command()
 def create(name: str = typer.Argument(...)) -> None:
     """Create a new Actie project."""
-    
+
     path = os.path.join(os.getcwd(), name)
-    actie_path = inspect.getmodule(actie)
-    print(actie_path)
 
     if (os.path.exists(path)):
-        typer.echo(f"Project '{name}' already exists. Try with a different name.")
+        typer.echo(
+            f"Project '{name}' already exists. Try with a different name.")
         raise typer.Exit()
-    
+
     os.mkdir(path)
-    
+
+    # Create README
     with open(os.path.join(path, "README.md"), "w") as f:
         f.write("# Your Actie project\n")
         f.write("Type `actie run` from the root of the project to deploy.")
-        
+
+    # Create Actie module
     os.mkdir(os.path.join(path, 'actie'))
-    
+
     with open(os.path.join(path, 'actie', '__init__.py'), 'w') as f:
         f.write("")
-        
+
     with open(os.path.join(path, 'actie', 'actor.py'), 'w') as f:
-        f.write("")
-    
+        f.write(inspect.getsource(Actor))
+
+    # Create src folder and sample actor
     os.mkdir(os.path.join(path, 'src'))
-    os.mkdir(os.path.join(path, 'src', 'actors'))
-    
-    with open(os.path.join(path, 'src', 'actors', 'counter.py'), 'w') as f:
-        f.write()
-    
+
+    with open(os.path.join(path, 'src', 'counter.py'), 'w') as f:
+        f.write(inspect.getsource(Counter))
+
     typer.echo(f"Project '{name}' created.")
     raise typer.Exit()
 

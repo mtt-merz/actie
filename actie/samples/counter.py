@@ -1,4 +1,4 @@
-from command_line import Actor
+from actie import Actor
 
 
 class Counter(Actor):

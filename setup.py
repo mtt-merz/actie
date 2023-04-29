@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from actie import __name__, __version__
 
 
@@ -16,7 +16,8 @@ setup(
     author="Matteo Merz",
     author_email="matteo.merz@mail.polimi.it",
     url="https://github.com/mtt-merz/actie-cli",
+    packages=find_packages(),
     entry_points={
-        'console_scripts': ['actie=actie_cli.__main__:main'],
+        'console_scripts': ['actie=command_line.__main__:main'],
     }
 )
