@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from actie_cli import __name__, __version__, __description__
+from command_line import __name__, __version__, __description__
 
 
 def readfile(filename):

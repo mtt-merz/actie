@@ -2,11 +2,13 @@
 
 # actie/cli.py
 
+import inspect
 import os
 from typing import Optional
 import typer
 
-from actie_cli import __app_name__, __version__
+from command_line import __app_name__, __version__
+import actie
 
 
 app = typer.Typer()
@@ -16,6 +18,9 @@ def create(name: str = typer.Argument(...)) -> None:
     """Create a new Actie project."""
     
     path = os.path.join(os.getcwd(), name)
+    actie_path = inspect.getmodule(actie)
+    print(actie_path)
+
     if (os.path.exists(path)):
         typer.echo(f"Project '{name}' already exists. Try with a different name.")
         raise typer.Exit()
@@ -38,25 +43,7 @@ def create(name: str = typer.Argument(...)) -> None:
     os.mkdir(os.path.join(path, 'src', 'actors'))
     
     with open(os.path.join(path, 'src', 'actors', 'counter.py'), 'w') as f:
-        f.write("""from src.actie.actor import Actor
-
-
-class Counter(Actor):
-    def __init__(self) -> None:
-        self.value = 0
-
-    def receive(self, msg: str) -> str:
-        old_value = self.value
-
-        if msg == 'increment':
-            self.value += 1
-
-        elif msg == 'decrement':
-            self.value -= 1
-
-        new_value = self.value
-        return 'Value updated from {} to {}'.format(old_value, new_value)
-                """)
+        f.write()
     
     typer.echo(f"Project '{name}' created.")
     raise typer.Exit()

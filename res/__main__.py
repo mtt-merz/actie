@@ -1,6 +1,6 @@
 import traceback
 from repository import Repository
-from resources.actie.actor import Actor
+from actie import Actor
 
 def main(args) -> dict:
     '''Run actor actions in response to messages.
