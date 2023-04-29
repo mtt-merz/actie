@@ -1,6 +1,3 @@
-"""Actie entry point script."""
-# actie/__main__.py
-
 from command_line import __app_name__, command_line
 
 def main():

@@ -1,5 +1,5 @@
-from setuptools import setup, find_packages
-from command_line import __name__, __version__, __description__
+from setuptools import setup
+from actie import __name__, __version__
 
 
 def readfile(filename):
@@ -10,7 +10,7 @@ def readfile(filename):
 setup(
     name=__name__,
     version=__version__,
-    description=__description__,
+    description="A simple actor framework",
     long_description=readfile('README.md'),
     license=readfile('LICENSE'),
     author="Matteo Merz",

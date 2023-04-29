@@ -1,7 +1,5 @@
 """This module provides the Actie CLI."""
 
-# actie/cli.py
-
 import inspect
 import os
 from typing import Optional
