@@ -4,10 +4,10 @@ Actie Command-line Interface (CLI) is a unified tool that provides a consistent 
 
 ## Getting started
 
-To install the project in editable mode, just for debug purposes, and the required dependencies, type
+First, clone the project, then move to the project folder.
+
+To add the required dependencies and to install the project in editable mode, just for debug purposes, and , type
 
 ```pip install -r requirements.txt```
 
-```pip install -e <path>```
-
-(if your are inside the project folder, the path will be `.`).
+```pip install -e .```
