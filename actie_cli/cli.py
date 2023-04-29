@@ -6,7 +6,7 @@ import os
 from typing import Optional
 import typer
 
-from src import __app_name__, __version__
+from actie_cli import __app_name__, __version__
 
 
 app = typer.Typer()

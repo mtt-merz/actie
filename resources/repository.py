@@ -1,4 +1,4 @@
-from actie import Actor
+from actie_cli import Actor
 import os
 import pickle
 import requests

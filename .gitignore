@@ -1,5 +1,11 @@
-.venv/
 .vscode/
 
+.venv/
+
+# Python run caches
 __pycache__/
 *.pyc
+
+# Package install files
+*.egg-info/
+build/
