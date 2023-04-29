@@ -11,6 +11,6 @@ Then, move to the project folder and install the required dependencies
 
 ```pip install -r requirements.txt```
 
-Now you can install the project
+Now you can install the project itself
 
 ```pip install .```
