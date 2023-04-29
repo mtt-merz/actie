@@ -8,7 +8,7 @@ First of all, clone the project.
 Then, move to the project folder and install the required dependencies
 
 ```
-cd actie-cli
+cd actie
 pip install -r requirements.txt
 ```
 
