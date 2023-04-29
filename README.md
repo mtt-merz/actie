@@ -4,9 +4,7 @@ Actie Command-line Interface (CLI) is a unified tool that provides a consistent 
 
 ## Getting started
 
-First of all, clone the project
-
-```git clone https://github.com/mtt-merz/actie-cli```
+First of all, clone the project.
 
 Then, move to the project folder and install the required dependencies
 
@@ -16,4 +14,4 @@ Then, move to the project folder and install the required dependencies
 
 Now you can install the project
 
-```pip install -e .```
+```pip install .```
