@@ -8,7 +8,7 @@ class Actor:
     def __init__(self, id: str) -> None:
         self.id = id
 
-    def receive(self, msg: str) -> str:
+    def onMessage(self, msg: str) -> str:
         raise NotImplementedError
 
     def send(self, msg: str, *args) -> None:

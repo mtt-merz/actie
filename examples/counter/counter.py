@@ -5,7 +5,7 @@ class Counter(Actor):
     def __init__(self) -> None:
         self.value = 0
 
-    def receive(self, msg: str) -> str:
+    def onMessage(self, msg: str) -> str:
         old_value = self.value
 
         if msg == 'increment':
