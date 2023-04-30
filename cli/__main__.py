@@ -1,9 +1,9 @@
 from actie import __app_name__
-from command_line import command_line
+from cli import cli
 
 
 def main():
-    command_line.app(prog_name=__app_name__)
+    cli.app(prog_name=__app_name__)
 
 
 if __name__ == "__main__":

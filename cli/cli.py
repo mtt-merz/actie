@@ -2,11 +2,13 @@
 
 import inspect
 import os
+import shutil
 from typing import Optional
 import typer
+from distutils.dir_util import copy_tree
 
-from actie import __app_name__, __version__, Actor
-from actie.samples.counter import Counter
+import actie
+from examples import counter as example
 
 
 app = typer.Typer()
@@ -19,9 +21,11 @@ def create(name: str = typer.Argument(...)) -> None:
     path = os.path.join(os.getcwd(), name)
 
     if (os.path.exists(path)):
-        typer.echo(
-            f"Project '{name}' already exists. Try with a different name.")
-        raise typer.Exit()
+        # TODO: Cut this off, when not in development
+        shutil.rmtree(path)
+        # typer.echo(
+        #     f"Project '{name}' already exists. Try with a different name.")
+        # raise typer.Exit()
 
     os.mkdir(path)
 
@@ -30,20 +34,13 @@ def create(name: str = typer.Argument(...)) -> None:
         f.write("# Your Actie project\n")
         f.write("Type `actie run` from the root of the project to deploy.")
 
-    # Create Actie module
-    os.mkdir(os.path.join(path, 'actie'))
+    # Copy Actie module
+    copy_tree(inspect.getabsfile(actie).removesuffix(
+        "/__init__.py"), os.path.join(path, "actie"))
 
-    with open(os.path.join(path, 'actie', '__init__.py'), 'w') as f:
-        f.write("")
-
-    with open(os.path.join(path, 'actie', 'actor.py'), 'w') as f:
-        f.write(inspect.getsource(Actor))
-
-    # Create src folder and sample actor
-    os.mkdir(os.path.join(path, 'src'))
-
-    with open(os.path.join(path, 'src', 'counter.py'), 'w') as f:
-        f.write(inspect.getsource(Counter))
+    # Create src folder and copy sample actor
+    copy_tree(inspect.getabsfile(example).removesuffix(
+        "/__init__.py"), os.path.join(path, "src"))
 
     typer.echo(f"Project '{name}' created.")
     raise typer.Exit()
@@ -51,7 +48,7 @@ def create(name: str = typer.Argument(...)) -> None:
 
 def _version_callback(value: bool) -> None:
     if value:
-        typer.echo(f"{__app_name__} v{__version__}")
+        typer.echo(f"{actie.__app_name__} v{actie.__version__}")
         raise typer.Exit()
 
 

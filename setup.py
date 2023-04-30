@@ -18,6 +18,6 @@ setup(
     url="https://github.com/mtt-merz/actie-cli",
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['actie=command_line.__main__:main'],
+        'console_scripts': ['actie=cli.__main__:main'],
     }
 )
