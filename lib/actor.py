@@ -3,7 +3,7 @@ from os.path import join as join_paths
 import json
 from re import match
 
-from actie.wsk import OpenWhisk
+from lib.wsk import OpenWhisk
 
 class Actor:
     def __init__(self, id: str) -> None:

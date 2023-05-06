@@ -1,4 +1,4 @@
-from actie import Actor
+from lib import Actor
 
 class __Actor__(Actor):
     def receive(self, msg: str) -> str:

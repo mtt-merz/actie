@@ -4,7 +4,7 @@ import random
 from threading import Thread
 import time
 
-from actie import OpenWhisk
+from lib import OpenWhisk
 
 
 # Multiple purposes:

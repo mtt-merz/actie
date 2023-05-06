@@ -11,7 +11,7 @@ from typing import Optional
 import typer
 import venv
 
-import actie
+import lib
 import resources
 from examples import counter as example
 from cli.utils import *
@@ -39,8 +39,8 @@ def create(name: str = typer.Argument(...)) -> None:
 
     # Copy libraries
     copy_tree(
-        get_path(actie),
-        join_paths(project_path, "actie")
+        get_path(lib),
+        join_paths(project_path, "lib")
     )
 
     # Create src folder and sample actor
@@ -106,8 +106,8 @@ def build() -> None:
 
         # Move internal libraries
         copy_tree(
-            get_path(actie),
-            join_paths(actor_build_path, "actie")
+            get_path(lib),
+            join_paths(actor_build_path, "lib")
         )
 
         typer.echo("Adding files...")
@@ -147,7 +147,7 @@ def build() -> None:
         subprocess.run([
             join_paths(actor_build_path, ".venv", "bin", "pip"),
             "install",
-            "-r", join_paths(get_path(actie), "requirements.txt")
+            "-r", join_paths(get_path(lib), "requirements.txt")
         ])
 
         # Archive all files
@@ -166,10 +166,10 @@ def run() -> None:
 
     with open(join_paths(getcwd(), "wsk_config.json"), "r") as f:
         config = json.loads(f.read())
-        wsk = actie.OpenWhisk(config["api-host"], config["auth"])
+        wsk = lib.OpenWhisk(config["api-host"], config["auth"])
 
+    # Deploy actors to OpenWhisk
     for actor in get_actors():
-        # Deploy actor to OpenWhisk
         typer.echo(f"Deploying actor '{actor}'...")
 
         archive_path = join_paths(getcwd(), "build", actor, f"{actor}.zip")
@@ -177,8 +177,8 @@ def run() -> None:
             code = base64.b64encode(file.read())
             wsk.create(actor, code)
 
+    # Execute entrypoint
     typer.echo("\nStart running project...")
-
     with open(join_paths(getcwd(), "src", "__main__.py"), "r") as f:
         code = f.read()
         exec(code)
@@ -186,7 +186,7 @@ def run() -> None:
 
 def _version_callback(value: bool) -> None:
     if value:
-        typer.echo(f"{actie.__app_name__} v{actie.__version__}")
+        typer.echo(f"{lib.__app_name__} v{lib.__version__}")
         raise typer.Exit()
 
 
