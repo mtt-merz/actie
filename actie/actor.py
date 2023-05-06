@@ -1,8 +1,5 @@
-# actie/actor.py
-
 import re
 import subprocess
-
 
 class Actor:
     def __init__(self, id: str) -> None:
