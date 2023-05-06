@@ -121,11 +121,3 @@ def main(args) -> dict:
         return {
             "error": traceback.format_exc()
         }
-
-
-res = main({
-    'actor_id': 'qwert',
-    'actor_type': 'counter',
-    'message': 'increment'
-})
-print(res)

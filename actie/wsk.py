@@ -1,3 +1,4 @@
+import json
 import requests
 
 # For references about OpenWhisk REST API
@@ -50,12 +51,5 @@ class OpenWhisk:
             },
         )
 
-        print(res.content)
-        # print("Actor@{} invoked".format(id))
-        # subprocess.run([
-        #     "wsk", "action", "invoke", name,
-        #     "--result",
-        #     "--param", "actor_id", id,
-        #     "--param", "actor_type", name,
-        #     "--param", "message", message
-        # ], check=True)
+        res = json.loads(res.content)
+        print(json.dumps(res, indent=2))

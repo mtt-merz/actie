@@ -3,7 +3,7 @@
 import base64
 from distutils.dir_util import copy_tree, remove_tree
 import json
-from os import mkdir, getcwd, listdir
+from os import mkdir, getcwd
 from os.path import join as join_paths, exists
 from shutil import rmtree, make_archive, copyfile
 import subprocess
@@ -52,17 +52,20 @@ def create(name: str = typer.Argument(...)) -> None:
     typer.echo("Adding files...")
 
     # Create README
-    with open(join_paths(project_path, "README.md"), "w") as f:
+    readme_path = join_paths(project_path, "README.md")
+    with open(readme_path, "w") as f:
         f.write("# Your Actie project\n")
         f.write("Type `actie run` from the root of the project to deploy.")
 
     # Create wsk_config.json
-    with open(join_paths(project_path, "wsk_config.json"), "w") as f:
+    wsk_config_path = join_paths(project_path, "wsk_config.json")
+    with open(wsk_config_path, "w") as f:
         config = {"api-host": "API_HOST", "auth": "AUTH"}
         f.write(json.dumps(config))
 
     # Create .gitignore
-    with open(join_paths(project_path, ".gitignore"), "w") as f:
+    gitignore_path = join_paths(project_path, ".gitignore")
+    with open(gitignore_path, "w") as f:
         f.write("*.pyc\n")
         f.write("__pycache__/\n")
         f.write("build/\n")
@@ -84,12 +87,8 @@ def build() -> None:
     mkdir(build_path)
 
     # Detect project actors
-    actors = listdir(join_paths(getcwd(), "src", "actors"))
+    actors = get_actors()
     typer.echo(f"Found {len(actors)} actor(s): {', '.join(actors)}")
-
-    with open(join_paths(getcwd(), "wsk_config.json"), "r") as f:
-        config = json.loads(f.read())
-        wsk = actie.OpenWhisk(config["api-host"], config["auth"])
 
     for actor in actors:
         typer.echo(f"\n[{actor}]")
@@ -114,8 +113,10 @@ def build() -> None:
         typer.echo("Adding files...")
 
         # Add {actor_build_path}/__main__.py
-        with open(join_paths(get_path(resources), "actor_entry_point.py"), "r") as fin, \
-                open(join_paths(actor_build_path, "__main__.py"), "w") as fout:
+        main_in_path = join_paths(get_path(resources), "__main__.py")
+        main_out_path = join_paths(actor_build_path, "__main__.py")
+        with open(main_in_path, "r") as fin, \
+                open(main_out_path, "w") as fout:
             code = fin.read()
             code = code.replace("__actor__", actor)
             code = code.replace("__Actor__", actor.capitalize())
@@ -155,19 +156,27 @@ def build() -> None:
             root_dir=actor_build_path
         )
 
-        # Deploy actor to OpenWhisk
-        typer.echo(f"Deploying actor...")
-        with open(archive_path, 'rb') as file:
-            code = base64.b64encode(file.read())
-            wsk.create(actor, code)
-
-        # rmtree(build_path)
-        typer.echo(f"Actor '{actor}' deployed.")
+        typer.echo(f"Actor '{actor}' built")
 
 
 @app.command()
 def run() -> None:
     """Run Actie project."""
+    build()
+
+    with open(join_paths(getcwd(), "wsk_config.json"), "r") as f:
+        config = json.loads(f.read())
+        wsk = actie.OpenWhisk(config["api-host"], config["auth"])
+
+    for actor in get_actors():
+        # Deploy actor to OpenWhisk
+        typer.echo(f"Deploying actor '{actor}'...")
+
+        archive_path = join_paths(getcwd(), "build", actor, f"{actor}.zip")
+        with open(archive_path, 'rb') as file:
+            code = base64.b64encode(file.read())
+            wsk.create(actor, code)
+
     typer.echo("\nStart running project...")
 
     with open(join_paths(getcwd(), "src", "__main__.py"), "r") as f:
