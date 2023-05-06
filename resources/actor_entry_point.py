@@ -1,4 +1,4 @@
-from __actor__ import __Actor__ as Actor
+from __actor__ import __Actor__
 
 import os
 import pickle
@@ -19,7 +19,7 @@ class Repository:
     def __exit__(self, *args) -> None:
         self.file.close()
 
-    def load(self) -> Actor:
+    def load(self) -> __Actor__:
         '''Load the actor instance.
 
         Check first locally; if nothing is found, check the (remote) object storage.
@@ -51,9 +51,9 @@ class Repository:
         #         'Fail fetching snapshot from object storage\n{}'.format(response.content))
 
         print('Snapshot neither found remotely: initialize actor')
-        return Actor()
+        return __Actor__()
 
-    def dump(self, obj: Actor, remote: bool) -> None:
+    def dump(self, obj: __Actor__, remote: bool) -> None:
         '''Dump the actor instance.
 
         The dump process is executed first locally.
@@ -104,7 +104,7 @@ def main(args) -> dict:
     try:
         label = '{}_{}'.format(args['actor_type'], args['actor_id'])
         with Repository(label) as repository:
-            actor: Actor = repository.load()
+            actor: __Actor__ = repository.load()
 
             # Execute code
             msg = args['message']
