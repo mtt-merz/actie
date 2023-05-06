@@ -1,1 +1,0 @@
-from libs.wsk.api import OpenWhisk

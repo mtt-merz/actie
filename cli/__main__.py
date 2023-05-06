@@ -1,4 +1,4 @@
-from libs.actie import __app_name__
+from actie import __app_name__
 from cli import cli
 
 

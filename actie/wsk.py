@@ -1,5 +1,3 @@
-import json
-import os
 import requests
 
 # For references about OpenWhisk REST API

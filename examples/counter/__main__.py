@@ -4,7 +4,7 @@ import random
 from threading import Thread
 import time
 
-from libs.wsk import OpenWhisk
+from actie import OpenWhisk
 
 
 # Multiple purposes:
@@ -32,7 +32,7 @@ threads = []
 
 with open(os.path.join(os.getcwd(), "wsk_config.json"), "r") as f:
     config = json.loads(f.read())
-    wsk = OpenWhisk(config["api_host"], config["auth"])
+    wsk = OpenWhisk(config["api-host"], config["auth"])
 
 for i in range(n):
     id = random.choice(list(invocations_counter))

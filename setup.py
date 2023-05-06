@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from libs.actie import __name__, __version__
+from actie import __name__, __version__
 
 
 def readfile(filename):

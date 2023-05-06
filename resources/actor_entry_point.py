@@ -1,6 +1,5 @@
 from __actor__ import __Actor__ as Actor
 
-import traceback
 import os
 import pickle
 import requests
@@ -41,17 +40,18 @@ class Repository:
             return pickle.load(self.file)
 
         print('Snapshot not found locally, trying loading from remote...')
-        response = requests.get(self.url, auth=self.auth)
-        if response.status_code == 404:
-            print('Snapshot neither found remotely: initialize actor')
-            return Actor()
+        # response = requests.get(self.url, auth=self.auth)
 
-        if not response.ok:
-            raise requests.RequestException(
-                'Fail fetching snapshot from object storage\n{}'.format(response.content))
+        # if (response.ok):
+        #     print('Snaphsot loaded remotely')
+        #     return pickle.loads(response.content)
 
-        print('Snaphsot loaded remotely')
-        return pickle.loads(response.content)
+        # if not response.ok and response.status_code != 400:
+        #     raise requests.RequestException(
+        #         'Fail fetching snapshot from object storage\n{}'.format(response.content))
+
+        print('Snapshot neither found remotely: initialize actor')
+        return Actor()
 
     def dump(self, obj: Actor, remote: bool) -> None:
         '''Dump the actor instance.

@@ -1,11 +1,11 @@
-from libs.actie import Actor
+from actie import Actor
 
 
 class Counter(Actor):
     def __init__(self) -> None:
         self.value = 0
 
-    def onMessage(self, msg: str) -> str:
+    def receive(self, msg: str) -> str:
         old_value = self.value
 
         if msg == 'increment':

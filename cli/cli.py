@@ -1,17 +1,18 @@
 """This module provides the Actie CLI."""
 
 import base64
+from distutils.dir_util import copy_tree, remove_tree
 import json
-import os
+from os import mkdir, getcwd, listdir
+from os.path import join as join_paths, exists
 from shutil import rmtree, make_archive, copyfile
+import subprocess
 from typing import Optional
 import typer
-from distutils.dir_util import copy_tree
+import venv
 
-import libs
-import libs.actie as actie
-import libs.wsk
-import utils
+import actie
+import resources
 from examples import counter as example
 from cli.utils import *
 
@@ -22,104 +23,156 @@ app = typer.Typer()
 @app.command()
 def create(name: str = typer.Argument(...)) -> None:
     """Create a new Actie project."""
-    typer.echo(f"Start creating '{name}' project...\n")
+    typer.echo(f"Start creating '{name}' project...")
 
-    path = os.path.join(os.getcwd(), name)
+    project_path = join_paths(getcwd(), name)
 
-    if (os.path.exists(path)):
+    if (exists(project_path)):
         # TODO: Cut this off, when not in development
-        rmtree(path)
+        rmtree(project_path)
         # typer.echo(
         #     f"Project '{name}' already exists. Try with a different name.")
         # raise typer.Exit()
 
-    os.mkdir(path)
-
-    # Create README
-    with open(os.path.join(path, "README.md"), "w") as f:
-        f.write("# Your Actie project\n")
-        f.write("Type `actie run` from the root of the project to deploy.")
-    typer.echo("Create README.md")
+    mkdir(project_path)
+    typer.echo("Moving files...")
 
     # Copy libraries
-    copy_tree(get_module_path(libs), os.path.join(path, "libs"))
-    typer.echo("Copy libraries")
-
-    # Create wsk_config.json
-    with open(os.path.join(path, "wsk_config.json"), "w") as f:
-        config = {"api_host": "API_HOST", "auth": "AUTH"}
-        f.write(json.dumps(config))
+    copy_tree(
+        get_path(actie),
+        join_paths(project_path, "actie")
+    )
 
     # Create src folder and sample actor
-    copy_tree(get_module_path(example), os.path.join(path, "src"))
-    typer.echo("Create src folder and copy example actor")
+    copy_tree(
+        get_path(example),
+        join_paths(project_path, "src")
+    )
+
+    typer.echo("Adding files...")
+
+    # Create README
+    with open(join_paths(project_path, "README.md"), "w") as f:
+        f.write("# Your Actie project\n")
+        f.write("Type `actie run` from the root of the project to deploy.")
+
+    # Create wsk_config.json
+    with open(join_paths(project_path, "wsk_config.json"), "w") as f:
+        config = {"api-host": "API_HOST", "auth": "AUTH"}
+        f.write(json.dumps(config))
+
+    # Create .gitignore
+    with open(join_paths(project_path, ".gitignore"), "w") as f:
+        f.write("*.pyc\n")
+        f.write("__pycache__/\n")
+        f.write("build/\n")
+        f.write("egg-info/\n")
+        f.write(".vscode/\n")
 
     typer.echo(f"\nProject '{name}' created.")
     raise typer.Exit()
 
 
 @app.command()
-def run() -> None:
-    """Run an Actie project."""
-    typer.echo(f"Start running...\n")
+def build() -> None:
+    """Build Actie project."""
+    typer.echo(f"Start building...")
+
+    build_path = join_paths(getcwd(), "build")
+    if (exists(build_path)):
+        remove_tree(build_path)
+    mkdir(build_path)
 
     # Detect project actors
-    actors = os.listdir(os.path.join(os.getcwd(), "src", "actors"))
+    actors = listdir(join_paths(getcwd(), "src", "actors"))
+    typer.echo(f"Found {len(actors)} actor(s): {', '.join(actors)}")
 
-    with open(os.path.join(os.getcwd(), "wsk_config.json"), "r") as f:
+    with open(join_paths(getcwd(), "wsk_config.json"), "r") as f:
         config = json.loads(f.read())
-        wsk = libs.wsk.OpenWhisk(config["api-host"], config["auth"])
-
-    build_path = os.path.join(os.getcwd(), "build")
-    os.mkdir(build_path)
+        wsk = actie.OpenWhisk(config["api-host"], config["auth"])
 
     for actor in actors:
-        typer.echo(actor.upper())
+        typer.echo(f"\n[{actor}]")
 
-        actor_build_path = os.path.join(build_path, actor)
-        os.mkdir(actor_build_path)
+        typer.echo("Moving files...")
+
+        actor_build_path = join_paths(build_path, actor)
+        mkdir(actor_build_path)
+
+        # Move actor code
+        copy_tree(
+            join_paths(getcwd(), "src", "actors", actor),
+            actor_build_path
+        )
+
+        # Move internal libraries
+        copy_tree(
+            get_path(actie),
+            join_paths(actor_build_path, "actie")
+        )
+
+        typer.echo("Adding files...")
 
         # Add {actor_build_path}/__main__.py
-        with open(os.path.join(get_module_path(utils), "__main__.py"), "r") as fin, \
-                open(os.path.join(actor_build_path, "__main__.py"), "w") as fout:
+        with open(join_paths(get_path(resources), "actor_entry_point.py"), "r") as fin, \
+                open(join_paths(actor_build_path, "__main__.py"), "w") as fout:
             code = fin.read()
             code = code.replace("__actor__", actor)
             code = code.replace("__Actor__", actor.capitalize())
-            
+
             fout.write(code)
 
         # Add wsk_config.json
-        copyfile(os.path.join(os.getcwd(), "wsk_config.json"),
-                 os.path.join(actor_build_path, "wsk_config.json"))
+        copyfile(
+            join_paths(getcwd(), "wsk_config.json"),
+            join_paths(actor_build_path, "wsk_config.json")
+        )
 
-        # Add actor code
-        actor_path = os.path.join(os.getcwd(), "src", "actors", actor)
-        copy_tree(actor_path, actor_build_path)
+        # Install dependencies
+        typer.echo("Adding dependencies...")
+        venv.create(
+            join_paths(actor_build_path, ".venv"),
+            with_pip=True
+        )
 
-        # Add libraries
-        copy_tree(get_module_path(libs), os.path.join(
-            actor_build_path, "libs"))
+        actor_req_path = join_paths(actor_build_path, "requirements.txt")
+        if exists(actor_req_path):
+            subprocess.run([
+                join_paths(actor_build_path, ".venv", "bin", "pip"),
+                "install",
+                "-r", actor_req_path
+            ])
+
+        subprocess.run([
+            join_paths(actor_build_path, ".venv", "bin", "pip"),
+            "install",
+            "-r", join_paths(get_path(actie), "requirements.txt")
+        ])
 
         # Archive all files
         archive_path = make_archive(
-            actor_build_path, "zip",
+            join_paths(actor_build_path, actor), "zip",
             root_dir=actor_build_path
         )
-        typer.echo(f"Create archive")
 
         # Deploy actor to OpenWhisk
+        typer.echo(f"Deploying actor...")
         with open(archive_path, 'rb') as file:
             code = base64.b64encode(file.read())
             wsk.create(actor, code)
 
         # rmtree(build_path)
-        typer.echo(f"Create OpenWhisk action")
-        
-        # Execute main
-        typer.echo("\nRunning main...")
-        with open(os.path.join(os.getcwd(), "src", "__main__.py"), "r") as f:
-            code = f.read()
-            exec(code)
+        typer.echo(f"Actor '{actor}' deployed.")
+
+
+@app.command()
+def run() -> None:
+    """Run Actie project."""
+    typer.echo("\nStart running project...")
+
+    with open(join_paths(getcwd(), "src", "__main__.py"), "r") as f:
+        code = f.read()
+        exec(code)
 
 
 def _version_callback(value: bool) -> None:
