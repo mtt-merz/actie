@@ -1,9 +1,9 @@
-from __actor__ import __Actor__
-
-import os
+from os import open, fdopen, O_RDWR, O_CREAT, stat
 import pickle
 import requests
 import traceback
+
+from __actor__ import __Actor__
 
 
 class Repository:
@@ -12,8 +12,8 @@ class Repository:
 
     def __enter__(self):
         # Open snapshot file (create if not present) in READ and WRITE mode
-        self.file = os.fdopen(
-            os.open(self.file_name, os.O_RDWR | os.O_CREAT), 'rb+')
+        self.file = fdopen(
+            open(self.file_name, O_RDWR | O_CREAT), 'rb+')
         return self
 
     def __exit__(self, *args) -> None:
@@ -35,7 +35,7 @@ class Repository:
             the loaded actor instance
         '''
         print('Loading local snapshot...')
-        if os.stat(self.file_name).st_size > 0:
+        if stat(self.file_name).st_size > 0:
             print('Snapshot fetched locally')
             return pickle.load(self.file)
 
@@ -68,15 +68,15 @@ class Repository:
         pickle.dump(obj, self.file)
         print('Snapshot dumped locally')
 
-        if remote:
-            self.file.seek(0)
-            response = requests.put(self.url, data=self.file, auth=self.auth)
+        # if remote:
+        #     self.file.seek(0)
+        #     response = requests.put(self.url, data=self.file, auth=self.auth)
 
-            if not response.ok:
-                raise Exception(
-                    'Fail saving snapshot to object storage\n{}'.format(response.content))
+        #     if not response.ok:
+        #         raise Exception(
+        #             'Fail saving snapshot to object storage\n{}'.format(response.content))
 
-            print('Snapshot dumped remotely')
+        #     print('Snapshot dumped remotely')
 
 
 def main(args) -> dict:
