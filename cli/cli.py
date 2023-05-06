@@ -1,14 +1,17 @@
 """This module provides the Actie CLI."""
 
 import base64
+import json
 import os
-from shutil import rmtree, make_archive
+from shutil import rmtree, make_archive, copyfile
 from typing import Optional
 import typer
 from distutils.dir_util import copy_tree
 
-import actie
-import exec
+import libs
+import libs.actie as actie
+import libs.wsk
+import utils
 from examples import counter as example
 from cli.utils import *
 
@@ -38,11 +41,16 @@ def create(name: str = typer.Argument(...)) -> None:
         f.write("Type `actie run` from the root of the project to deploy.")
     typer.echo("Create README.md")
 
-    # Copy Actie module
-    copy_tree(get_module_path(actie), os.path.join(path, "actie"))
-    typer.echo("Copy actie module")
+    # Copy libraries
+    copy_tree(get_module_path(libs), os.path.join(path, "libs"))
+    typer.echo("Copy libraries")
 
-    # Create src folder and copy sample actor
+    # Create wsk_config.json
+    with open(os.path.join(path, "wsk_config.json"), "w") as f:
+        config = {"api_host": "API_HOST", "auth": "AUTH"}
+        f.write(json.dumps(config))
+
+    # Create src folder and sample actor
     copy_tree(get_module_path(example), os.path.join(path, "src"))
     typer.echo("Create src folder and copy example actor")
 
@@ -57,40 +65,61 @@ def run() -> None:
 
     # Detect project actors
     actors = os.listdir(os.path.join(os.getcwd(), "src", "actors"))
-    
-    wsk = actie.OpenWhiskAPI()
+
+    with open(os.path.join(os.getcwd(), "wsk_config.json"), "r") as f:
+        config = json.loads(f.read())
+        wsk = libs.wsk.OpenWhisk(config["api-host"], config["auth"])
 
     build_path = os.path.join(os.getcwd(), "build")
+    os.mkdir(build_path)
+
     for actor in actors:
         typer.echo(actor.upper())
 
         actor_build_path = os.path.join(build_path, actor)
+        os.mkdir(actor_build_path)
 
-        # Add __main__ and repository
-        copy_tree(get_module_path(exec), actor_build_path)
+        # Add {actor_build_path}/__main__.py
+        with open(os.path.join(get_module_path(utils), "__main__.py"), "r") as fin, \
+                open(os.path.join(actor_build_path, "__main__.py"), "w") as fout:
+            code = fin.read()
+            code = code.replace("__actor__", actor)
+            code = code.replace("__Actor__", actor.capitalize())
+            
+            fout.write(code)
+
+        # Add wsk_config.json
+        copyfile(os.path.join(os.getcwd(), "wsk_config.json"),
+                 os.path.join(actor_build_path, "wsk_config.json"))
 
         # Add actor code
         actor_path = os.path.join(os.getcwd(), "src", "actors", actor)
         copy_tree(actor_path, actor_build_path)
 
-        # Add actie library
-        copy_tree(get_module_path(actie), os.path.join(
-            actor_build_path, "actie"))
+        # Add libraries
+        copy_tree(get_module_path(libs), os.path.join(
+            actor_build_path, "libs"))
 
         # Archive all files
         archive_path = make_archive(
             actor_build_path, "zip",
             root_dir=actor_build_path
         )
-        rmtree(actor_build_path)
         typer.echo(f"Create archive")
 
         # Deploy actor to OpenWhisk
         with open(archive_path, 'rb') as file:
             code = base64.b64encode(file.read())
             wsk.create(actor, code)
-            
+
+        # rmtree(build_path)
         typer.echo(f"Create OpenWhisk action")
+        
+        # Execute main
+        typer.echo("\nRunning main...")
+        with open(os.path.join(os.getcwd(), "src", "__main__.py"), "r") as f:
+            code = f.read()
+            exec(code)
 
 
 def _version_callback(value: bool) -> None:

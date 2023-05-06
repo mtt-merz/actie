@@ -9,3 +9,6 @@ __pycache__/
 # Package install files
 *.egg-info/
 build/
+
+# Secrets
+secrets.json

@@ -1,14 +1,13 @@
-from actie import Actor
+from __actor__ import __Actor__ as Actor
+
+import traceback
 import os
 import pickle
 import requests
 import traceback
-from typing import TypeVar, Generic
-
-A = TypeVar('A', bound=Actor)
 
 
-class Repository(Generic[A]):
+class Repository:
     def __init__(self, label: str) -> None:
         self.file_name = label + '.pkl'
 
@@ -21,7 +20,7 @@ class Repository(Generic[A]):
     def __exit__(self, *args) -> None:
         self.file.close()
 
-    def load(self) -> A:
+    def load(self) -> Actor:
         '''Load the actor instance.
 
         Check first locally; if nothing is found, check the (remote) object storage.
@@ -45,7 +44,7 @@ class Repository(Generic[A]):
         response = requests.get(self.url, auth=self.auth)
         if response.status_code == 404:
             print('Snapshot neither found remotely: initialize actor')
-            return A()
+            return Actor()
 
         if not response.ok:
             raise requests.RequestException(
@@ -122,3 +121,11 @@ def main(args) -> dict:
         return {
             "error": traceback.format_exc()
         }
+
+
+res = main({
+    'actor_id': 'qwert',
+    'actor_type': 'counter',
+    'message': 'increment'
+})
+print(res)

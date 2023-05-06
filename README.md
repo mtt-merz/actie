@@ -17,3 +17,26 @@ Now you can install the project itself
 ```
 pip install .
 ```
+
+## Create an Actie project
+
+To create a new Actie project, use the Actie CLI as follows
+
+```
+actie create <PROJECT_NAME>
+```
+
+In order to connect to OpenWhisk, you should provide the credentials to access an OpenWhisk running instance. 
+
+```
+cd <PROJECT_NAME>/actie
+echo '{ "api-host": "<API_HOST>", "auth": "<AUTH>" }' > secrets.json
+```
+
+## Run an Actie project
+
+To run an Actie project, move to the project folder and use the Actie CLI as follows
+
+```
+actie run
+```

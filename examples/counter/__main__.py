@@ -1,6 +1,11 @@
+import json
+import os
 import random
 from threading import Thread
 import time
+
+from libs.wsk import OpenWhisk
+
 
 # Multiple purposes:
 #   (1) declare the available actor instances
@@ -24,11 +29,16 @@ n = 20
 # Invoke n times the 'increment' operation on a random actor
 # To test the concurrency, each invokation is sent on a new thread
 threads = []
+
+with open(os.path.join(os.getcwd(), "wsk_config.json"), "r") as f:
+    config = json.loads(f.read())
+    wsk = OpenWhisk(config["api_host"], config["auth"])
+
 for i in range(n):
     id = random.choice(list(invocations_counter))
     invocations_counter[id] += 1
 
-    t = Thread(target=invoke, args=[id, 'increment'])
+    t = Thread(target=wsk.invoke, args=['counter', id, 'increment'])
     t.start()
 
     threads.append(t)
