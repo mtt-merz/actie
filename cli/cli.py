@@ -57,9 +57,10 @@ def create(name: str = typer.Argument(...)) -> None:
         f.write("# Your Actie project\n")
         f.write("Type `actie run` from the root of the project to deploy.")
 
-    # Create wsk_config.json
-    wsk_config_path = join_paths(project_path, "wsk_config.json")
-    with open(wsk_config_path, "w") as f:
+    # Create config
+    config_path = join_paths(project_path, "config")
+    mkdir(config_path)
+    with open(join_paths(config_path, "wsk.json"), "w") as f:
         config = {"api-host": "API_HOST", "auth": "AUTH"}
         f.write(json.dumps(config))
 
@@ -123,38 +124,30 @@ def build() -> None:
 
             fout.write(code)
 
-        # Add wsk_config.json
+        # Add wsk.json
         copyfile(
-            join_paths(getcwd(), "wsk_config.json"),
-            join_paths(actor_build_path, "wsk_config.json")
+            join_paths(getcwd(), "config", "wsk.json"),
+            join_paths(actor_build_path, "wsk.json")
         )
 
         # Install dependencies
-        typer.echo("Adding dependencies...")
-        venv.create(
-            join_paths(actor_build_path, ".venv"),
-            with_pip=True
-        )
+        # typer.echo("Adding dependencies...")
 
-        actor_req_path = join_paths(actor_build_path, "requirements.txt")
-        if exists(actor_req_path):
-            subprocess.run([
-                join_paths(actor_build_path, ".venv", "bin", "pip"),
-                "install",
-                "-r", actor_req_path
-            ])
+        # venv_path = join_paths(actor_build_path, "virtualenv")
+        # venv.create(venv_path, with_pip=True)
+        # pip_path = join_paths(venv_path, "bin", "pip")
 
-        subprocess.run([
-            join_paths(actor_build_path, ".venv", "bin", "pip"),
-            "install",
-            "-r", join_paths(get_path(lib), "requirements.txt")
-        ])
+        # actor_req_path = join_paths(actor_build_path, "requirements.txt")
+        # if exists(actor_req_path):
+        #     subprocess.run([
+        #         pip_path, "install",
+        #         "-r", actor_req_path
+        #     ])
 
-        # Archive all files
-        archive_path = make_archive(
-            join_paths(actor_build_path, actor), "zip",
-            root_dir=actor_build_path
-        )
+        # subprocess.run([
+        #     pip_path, "install",
+        #     "-r", join_paths(get_path(lib), "requirements.txt")
+        # ])
 
         typer.echo(f"Actor '{actor}' built")
 
@@ -164,7 +157,7 @@ def run() -> None:
     """Run Actie project."""
     build()
 
-    with open(join_paths(getcwd(), "wsk_config.json"), "r") as f:
+    with open(join_paths(getcwd(), "config", "wsk.json"), "r") as f:
         config = json.loads(f.read())
         wsk = lib.OpenWhisk(config["api-host"], config["auth"])
 
@@ -172,9 +165,16 @@ def run() -> None:
     for actor in get_actors():
         typer.echo(f"Deploying actor '{actor}'...")
 
-        archive_path = join_paths(getcwd(), "build", actor, f"{actor}.zip")
-        with open(archive_path, 'rb') as file:
-            code = base64.b64encode(file.read())
+        # Archive all files
+        actor_build_path = join_paths(getcwd(), "build", actor)
+        archive_path = make_archive(
+            join_paths(actor_build_path, actor), "zip",
+            root_dir=actor_build_path
+        )
+
+        with open(archive_path, "rb") as f:
+            code = base64.b64encode(f.read())
+            code = code.decode("utf-8")
             wsk.create(actor, code)
 
     # Execute entrypoint
