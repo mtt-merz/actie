@@ -3,7 +3,7 @@
 import base64
 from distutils.dir_util import copy_tree, remove_tree
 import json
-from os import mkdir, getcwd
+from os import mkdir, getcwd, chdir
 from os.path import join as join_paths, exists
 from shutil import rmtree, make_archive, copyfile
 import subprocess
@@ -11,10 +11,11 @@ from typing import Optional
 import typer
 import venv
 
+from cli.utils import *
+from examples import counter as example
 import lib
 import resources
-from examples import counter as example
-from cli.utils import *
+import server
 
 
 app = typer.Typer()
@@ -131,23 +132,23 @@ def build() -> None:
         )
 
         # Install dependencies
-        # typer.echo("Adding dependencies...")
+        typer.echo("Adding dependencies...")
 
-        # venv_path = join_paths(actor_build_path, "virtualenv")
-        # venv.create(venv_path, with_pip=True)
-        # pip_path = join_paths(venv_path, "bin", "pip")
+        venv_path = join_paths(actor_build_path, "virtualenv")
+        venv.create(venv_path, with_pip=True)
+        pip_path = join_paths(venv_path, "bin", "pip")
 
-        # actor_req_path = join_paths(actor_build_path, "requirements.txt")
-        # if exists(actor_req_path):
-        #     subprocess.run([
-        #         pip_path, "install",
-        #         "-r", actor_req_path
-        #     ])
+        actor_req_path = join_paths(actor_build_path, "requirements.txt")
+        if exists(actor_req_path):
+            subprocess.run([
+                pip_path, "install",
+                "-r", actor_req_path
+            ])
 
-        # subprocess.run([
-        #     pip_path, "install",
-        #     "-r", join_paths(get_path(lib), "requirements.txt")
-        # ])
+        subprocess.run([
+            pip_path, "install",
+            "-r", join_paths(get_path(lib), "requirements.txt")
+        ])
 
         typer.echo(f"Actor '{actor}' built")
 
@@ -180,8 +181,21 @@ def run() -> None:
     # Execute entrypoint
     typer.echo("\nStart running project...")
     with open(join_paths(getcwd(), "src", "__main__.py"), "r") as f:
-        code = f.read()
-        exec(code)
+        exec(f.read())
+
+
+@app.command()
+def serve() -> None:
+    """Serve Actie project."""
+
+    snapshot_path = join_paths(getcwd(), "snapshots")
+    if not exists(snapshot_path):
+        mkdir(snapshot_path)
+
+    chdir(snapshot_path)
+
+    with open(join_paths(get_path(server), "__main__.py"), "r") as f:
+        exec(f.read())
 
 
 def _version_callback(value: bool) -> None:
