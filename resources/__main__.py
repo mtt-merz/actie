@@ -13,10 +13,10 @@ class Repository:
     def __init__(self, id: str) -> None:
         self.id = id
         self.file_name = f"{get_actor_label(__Actor__, id)}.pkl"
-        
+
         with open(join_paths(getcwd(), "config.json"), "r") as f:
             host = json.loads(f.read())["storage"]["host"]
-        
+
         self.url = f"{host}/{self.file_name}"
 
     def __enter__(self):
@@ -105,8 +105,6 @@ def main(args) -> dict:
             the id of the actor instance
         message: str
             the name of the action to invoke
-        offset: int
-            the offset of the message, just for logging purposes
 
     Returns
     -------
@@ -125,7 +123,7 @@ def main(args) -> dict:
             repository.dump(actor, remote=True)
 
         return {
-            "instance": actor.label,
+            "instance": get_actor_label(__Actor__, id),
             "result": res
         }
 
