@@ -28,6 +28,18 @@ actie create <PROJECT_NAME>
 
 In order to connect to OpenWhisk, you should provide the credentials to access an OpenWhisk running instance. Set them into the `config.json` file in the main folder of the project, toghether with the host of the storage server.
 
+```
+{
+    "wsk": {
+        "host": <WSK_HOST>,
+        "auth": <AUTH>
+    },
+    "storage": {
+        "host": <STORAGE_HOST>
+    }
+}
+```
+
 ## Run an Actie project
 
 To run an Actie project, move to the project folder and use the Actie CLI as follows
