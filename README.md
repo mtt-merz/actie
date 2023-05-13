@@ -26,12 +26,7 @@ To create a new Actie project, use the Actie CLI as follows
 actie create <PROJECT_NAME>
 ```
 
-In order to connect to OpenWhisk, you should provide the credentials to access an OpenWhisk running instance. 
-
-```
-cd <PROJECT_NAME>/actie
-echo '{ "api-host": "<API_HOST>", "auth": "<AUTH>" }' > secrets.json
-```
+In order to connect to OpenWhisk, you should provide the credentials to access an OpenWhisk running instance. Set them into the `config.json` file in the main folder of the project, toghether with the host of the storage server.
 
 ## Run an Actie project
 
@@ -39,4 +34,10 @@ To run an Actie project, move to the project folder and use the Actie CLI as fol
 
 ```
 actie run
+```
+
+If you just need to build the project, you can use the following command
+
+```
+actie build
 ```

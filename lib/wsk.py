@@ -11,7 +11,8 @@ class OpenWhisk:
         self.auth = auth.split(":")
         self.namespace = "_"
 
-    def create(self, name: str, code: str) -> None:
+    def create(self, name: str, code: str) -> dict:
+
         res = requests.put(
             f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{name}",
             auth=(self.auth[0], self.auth[1]),
@@ -19,8 +20,7 @@ class OpenWhisk:
                 "content-type": "application/json"
             },
             params={
-                "overwrite": True,
-                "result": True
+                "result": True,
             },
             json={
                 "namespace": self.namespace,
@@ -29,15 +29,15 @@ class OpenWhisk:
                     "kind": "python:3",
                     "code": code,
                     "binary": True
-                }
+                },
+                "annotations": [{
+                    "key": "provide-api-key",
+                    "value": True
+                }]
             }
         )
 
-        res = json.loads(res.content)
-        code = res["exec"]["code"]
-        code = code[:100] + f"...{len(code) - 200} chars dropped"
-        res["exec"]["code"] = code
-        print(json.dumps(res, indent=2))
+        return json.loads(res.content)
 
     def invoke(self, name: str, id: str, message: str) -> None:
         res = requests.post(

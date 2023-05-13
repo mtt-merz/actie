@@ -38,16 +38,22 @@ def create(name: str = typer.Argument(...)) -> None:
     mkdir(project_path)
     typer.echo("Moving files...")
 
-    # Copy libraries
+    # Move library
     copy_tree(
         get_path(lib),
         join_paths(project_path, "lib")
     )
 
-    # Create src folder and sample actor
+    # Move sample actor
     copy_tree(
         get_path(example),
         join_paths(project_path, "src")
+    )
+
+    # Move config
+    copyfile(
+        join_paths(get_path(resources), "config.txt"),
+        join_paths(project_path, "config.json")
     )
 
     typer.echo("Adding files...")
@@ -57,13 +63,6 @@ def create(name: str = typer.Argument(...)) -> None:
     with open(readme_path, "w") as f:
         f.write("# Your Actie project\n")
         f.write("Type `actie run` from the root of the project to deploy.")
-
-    # Create config
-    config_path = join_paths(project_path, "config")
-    mkdir(config_path)
-    with open(join_paths(config_path, "wsk.json"), "w") as f:
-        config = {"api-host": "API_HOST", "auth": "AUTH"}
-        f.write(json.dumps(config))
 
     # Create .gitignore
     gitignore_path = join_paths(project_path, ".gitignore")
@@ -112,6 +111,12 @@ def build() -> None:
             join_paths(actor_build_path, "lib")
         )
 
+        # Move configs
+        copyfile(
+            join_paths(getcwd(), "config.json"),
+            join_paths(actor_build_path, "config.json")
+        )
+
         typer.echo("Adding files...")
 
         # Add {actor_build_path}/__main__.py
@@ -125,30 +130,24 @@ def build() -> None:
 
             fout.write(code)
 
-        # Add wsk.json
-        copyfile(
-            join_paths(getcwd(), "config", "wsk.json"),
-            join_paths(actor_build_path, "wsk.json")
-        )
-
         # Install dependencies
-        typer.echo("Adding dependencies...")
+        # typer.echo("Adding dependencies...")
 
-        venv_path = join_paths(actor_build_path, "virtualenv")
-        venv.create(venv_path, with_pip=True)
-        pip_path = join_paths(venv_path, "bin", "pip")
+        # venv_path = join_paths(actor_build_path, "virtualenv")
+        # venv.create(venv_path, with_pip=True)
+        # pip_path = join_paths(venv_path, "bin", "pip")
 
-        actor_req_path = join_paths(actor_build_path, "requirements.txt")
-        if exists(actor_req_path):
-            subprocess.run([
-                pip_path, "install",
-                "-r", actor_req_path
-            ])
+        # actor_req_path = join_paths(actor_build_path, "requirements.txt")
+        # if exists(actor_req_path):
+        #     subprocess.run([
+        #         pip_path, "install",
+        #         "-r", actor_req_path
+        #     ])
 
-        subprocess.run([
-            pip_path, "install",
-            "-r", join_paths(get_path(lib), "requirements.txt")
-        ])
+        # subprocess.run([
+        #     pip_path, "install",
+        #     "-r", join_paths(get_path(lib), "requirements.txt")
+        # ])
 
         typer.echo(f"Actor '{actor}' built")
 
@@ -158,9 +157,9 @@ def run() -> None:
     """Run Actie project."""
     build()
 
-    with open(join_paths(getcwd(), "config", "wsk.json"), "r") as f:
-        config = json.loads(f.read())
-        wsk = lib.OpenWhisk(config["api-host"], config["auth"])
+    with open(join_paths(getcwd(), "config.json"), "r") as f:
+        config = json.loads(f.read())["wsk"]
+        wsk = lib.OpenWhisk(config["host"], config["auth"])
 
     # Deploy actors to OpenWhisk
     for actor in get_actors():
@@ -173,10 +172,25 @@ def run() -> None:
             root_dir=actor_build_path
         )
 
+        # Deploy actors
         with open(archive_path, "rb") as f:
             code = base64.b64encode(f.read())
             code = code.decode("utf-8")
-            wsk.create(actor, code)
+            res = wsk.create(actor, code)
+
+        if "error" in res.keys():
+            if "already exists" in res["error"]:
+                typer.echo("Actor already deployed")
+            else:
+                raise Exception(res["error"])
+
+        else:
+            typer.echo("Actor deployed")
+
+            code = res["exec"]["code"]
+            code = code[:100] + f"...({len(code) - 200} chars dropped)"
+            res["exec"]["code"] = code
+            typer.echo(json.dumps(res, indent=2))
 
     # Execute entrypoint
     typer.echo("\nStart running project...")

@@ -30,9 +30,9 @@ n = 10
 # To test the concurrency, each invokation is sent on a new thread
 threads = []
 
-with open(os.path.join(os.getcwd(), "config", "wsk.json"), "r") as f:
-    config = json.loads(f.read())
-    wsk = OpenWhisk(config["api-host"], config["auth"])
+with open(os.path.join(os.getcwd(), "config.json"), "r") as f:
+    config = json.loads(f.read())["wsk"]
+    wsk = OpenWhisk(config["host"], config["auth"])
 
 for i in range(n):
     id = random.choice(list(invocations_counter))

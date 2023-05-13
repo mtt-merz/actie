@@ -1,21 +1,28 @@
 import json
-from os import open, fdopen, O_RDWR, O_CREAT, stat
+from os import open as osopen, fdopen, O_RDWR, O_CREAT, stat, getcwd
+from os.path import join as join_paths
 import pickle
 import requests
 import traceback
 
+from lib.actor import get_actor_label
 from __actor__ import __Actor__
 
 
 class Repository:
-    def __init__(self, label: str) -> None:
-        self.file_name = label + ".pkl"
-        self.url = f"http://localhost:8080/{self.file_name}"
+    def __init__(self, id: str) -> None:
+        self.id = id
+        self.file_name = f"{get_actor_label(__Actor__, id)}.pkl"
+        
+        with open(join_paths(getcwd(), "config.json"), "r") as f:
+            host = json.loads(f.read())["storage"]["host"]
+        
+        self.url = f"{host}/{self.file_name}"
 
     def __enter__(self):
         # Open snapshot file (create if not present) in READ and WRITE mode
         self.file = fdopen(
-            open(self.file_name, O_RDWR | O_CREAT), "rb+")
+            osopen(self.file_name, O_RDWR | O_CREAT), "rb+")
         return self
 
     def __exit__(self, *args) -> None:
@@ -37,7 +44,7 @@ class Repository:
             the loaded actor instance
         '''
         print("Loading snapshot...")
-        
+
         if stat(self.file_name).st_size > 0:
             print("Snapshot fetched locally.")
             return pickle.load(self.file)
@@ -45,8 +52,10 @@ class Repository:
         print("Snapshot not found locally, trying loading from remote...")
         response = requests.get(self.url)
 
-        if (response.ok):
+        # TODO: remove check on response content
+        if (response.ok and len(response.content) > 0):
             print("Snaphsot loaded remotely.")
+            # raise(Exception(f"{response.status_code} - {response.content}"))
             return pickle.loads(response.content)
 
         if not response.ok and response.status_code != 404:
@@ -54,7 +63,7 @@ class Repository:
                 f"Fail fetching snapshot from object storage\n{response.content}")
 
         print("Snapshot neither found remotely: initialize actor")
-        return __Actor__()
+        return __Actor__(self.id)
 
     def dump(self, obj: __Actor__, remote: bool) -> None:
         '''Dump the actor instance.
@@ -68,7 +77,7 @@ class Repository:
             if the request to upload self.file fails
         '''
         print("\nDumping snapshot...")
-        
+
         self.file.seek(0)
         pickle.dump(obj, self.file)
         print("Snapshot dumped locally.")
@@ -94,8 +103,6 @@ def main(args) -> dict:
 
         actor_id: str
             the id of the actor instance
-        actor_type: str
-            the type of the actor instance
         message: str
             the name of the action to invoke
         offset: int
@@ -107,8 +114,8 @@ def main(args) -> dict:
         the execution results
     '''
     try:
-        label = args["actor_type"] + "@" + args["actor_id"]
-        with Repository(label) as repository:
+        id = args["actor_id"]
+        with Repository(id) as repository:
             actor: __Actor__ = repository.load()
 
             # Execute code
@@ -118,7 +125,7 @@ def main(args) -> dict:
             repository.dump(actor, remote=True)
 
         return {
-            "instance": label,
+            "instance": actor.label,
             "result": res
         }
 
@@ -129,9 +136,11 @@ def main(args) -> dict:
 
 
 res = main({
-    "actor_type": "counter",
     "actor_id": "ASDFG",
     "message": "increment",
 })
 
-print(json.dumps(res, indent=2))
+if "error" in res:
+    print(res["error"])
+else:
+    print(json.dumps(res, indent=2))
