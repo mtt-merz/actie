@@ -7,15 +7,15 @@ HOST = "localhost"
 PORT = 8080
 
 
-class MyHttpRequestHandler(SimpleHTTPRequestHandler):    
+class MyHttpRequestHandler(SimpleHTTPRequestHandler):
     def do_PUT(self):
         content_len = int(self.headers["Content-Length"])
         content = self.rfile.read(content_len)
-        
+
         path = join_paths(getcwd(), self.path)
         with open(self.translate_path(path), "wb") as f:
             f.write(content)
-        
+
         self.send_response(201, "Created")
         self.end_headers()
 

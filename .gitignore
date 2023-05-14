@@ -1,6 +1,6 @@
 .vscode/
-
 .venv/
+.metals/
 
 # Python run caches
 __pycache__/

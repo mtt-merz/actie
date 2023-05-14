@@ -199,6 +199,17 @@ def run() -> None:
 
 
 @app.command()
+def clean() -> None:
+    """Clean Actie project."""
+
+    build_path = join_paths(getcwd(), "build")
+    if exists(build_path):
+        remove_tree(build_path)
+
+    typer.echo("Project cleaned")
+
+
+@app.command()
 def serve() -> None:
     """Serve Actie project."""
 
