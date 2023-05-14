@@ -11,8 +11,8 @@ class Counter(Actor):
 
         if msg == 'increment':
             self.value += 1
-            # if (self.value < 5):
-            #     self.send(self.id, self.name, msg)
+            if (self.value < 5):
+                self.send(self.id, self.name, msg)
 
         elif msg == 'decrement':
             self.value -= 1

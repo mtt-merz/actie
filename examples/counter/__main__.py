@@ -19,9 +19,6 @@ invocations_counter = {
     'ZXCVB': 0
 }
 
-# Record starting time, for logging purposes
-start_time = time.time()
-
 # 30 is the max number of concurrent invocations
 # 60 is the max number of invocations each minute
 n = 10
@@ -52,4 +49,3 @@ for i in invocations_counter.items():
     print('Actor@{} invoked {} times'.format(i[0], i[1]))
 
 print('\nInvocations count: {}'.format(n))
-print('Execution time: ~{} seconds'.format(int(time.time() - start_time)))

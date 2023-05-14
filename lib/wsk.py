@@ -48,7 +48,6 @@ class OpenWhisk:
             },
             params={
                 "result": True,
-                "blocking": True
             },
             json={
                 "actor_id": id,
