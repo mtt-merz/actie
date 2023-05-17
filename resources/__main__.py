@@ -105,6 +105,8 @@ def main(args) -> dict:
             the id of the actor instance
         message: str
             the name of the action to invoke
+        remote: bool
+            true if the state should be persisted (also) remotely 
 
     Returns
     -------
@@ -115,12 +117,10 @@ def main(args) -> dict:
         id = args["actor_id"]
         with Repository(id) as repository:
             actor: __Actor__ = repository.load()
-
-            # Execute code
-            msg = args["message"]
-            res = actor.receive(msg)
-
-            repository.dump(actor, remote=True)
+            
+            res = actor.receive(args["message"])
+            
+            repository.dump(actor, remote=args["remote"])
 
         return {
             "instance": get_actor_label(__Actor__, id),

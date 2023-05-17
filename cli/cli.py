@@ -72,6 +72,7 @@ def create(name: str = typer.Argument(...)) -> None:
         f.write("build/\n")
         f.write("egg-info/\n")
         f.write(".vscode/\n")
+        f.write("config.json\n")
 
     typer.echo(f"\nProject '{name}' created.")
     raise typer.Exit()
