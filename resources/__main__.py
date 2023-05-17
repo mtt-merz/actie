@@ -117,10 +117,13 @@ def main(args) -> dict:
         id = args["actor_id"]
         with Repository(id) as repository:
             actor: __Actor__ = repository.load()
-            
-            res = actor.receive(args["message"])
-            
-            repository.dump(actor, remote=args["remote"])
+
+            # Execute code
+            msg = args["message"]
+            res = actor.receive(msg)
+
+            remote = args["remote"]
+            repository.dump(actor, remote)
 
         return {
             "instance": get_actor_label(__Actor__, id),

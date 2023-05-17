@@ -81,6 +81,11 @@ def create(name: str = typer.Argument(...)) -> None:
 @app.command()
 def build() -> None:
     """Build Actie project."""
+
+    if not exists(join_paths(getcwd(), "README.md")):
+        typer.echo("Please run 'actie create' first.")
+        raise typer.Exit()
+
     typer.echo(f"Start building...")
 
     build_path = join_paths(getcwd(), "build")
