@@ -19,8 +19,16 @@ class Actor:
 
     def receive(self, msg: str) -> str:
         raise NotImplementedError()
+    
+    is_isolated: bool = False
+
+    def isolate(self) -> None:
+        self.is_isolated = True
 
     def send(self, id: str,  name: str, msg: str, *args) -> None:
+        if (self.is_isolated):
+            return
+
         pattern = r"^\w+(_\w+)*$"
         if (not match(pattern, msg)):
             raise ValueError(
