@@ -9,6 +9,12 @@ from lib.actor import get_actor_label
 from __actor__ import __Actor__
 
 
+class Source:
+    LOCAL = "local",
+    REMOTE = "remote",
+    NONE = "none"
+
+
 class Repository:
     def __init__(self, id: str) -> None:
         self.id = id
@@ -28,7 +34,7 @@ class Repository:
     def __exit__(self, *args) -> None:
         self.file.close()
 
-    def load(self) -> __Actor__:
+    def load(self) -> tuple:
         '''Load the actor instance.
 
         Check first locally; if nothing is found, check the (remote) object storage.
@@ -40,30 +46,36 @@ class Repository:
 
         Returns
         -------
-        actor: Actor
-            the loaded actor instance
+        actor: __Actor__
+            the loaded __actor__ instance
+        source: Source
+            the source of the loaded instance
         '''
         print("Loading snapshot...")
 
         if stat(self.file_name).st_size > 0:
+            actor = pickle.load(self.file)
+
             print("Snapshot fetched locally.")
-            return pickle.load(self.file)
+            return (actor, Source.LOCAL)
 
         print("Snapshot not found locally, trying loading from remote...")
         response = requests.get(self.url)
 
-        # TODO: remove check on response content
-        if (response.ok and len(response.content) > 0):
+        if (response.ok):
+            actor = pickle.loads(response.content)
+
             print("Snaphsot loaded remotely.")
-            # raise(Exception(f"{response.status_code} - {response.content}"))
-            return pickle.loads(response.content)
+            return (actor, Source.REMOTE)
 
         if not response.ok and response.status_code != 404:
             raise requests.RequestException(
                 f"Fail fetching snapshot from object storage\n{response.content}")
 
+        actor = __Actor__(self.id)
+
         print("Snapshot neither found remotely: initialize actor")
-        return __Actor__(self.id)
+        return (actor, Source.NONE)
 
     def dump(self, obj: __Actor__, remote: bool) -> None:
         '''Dump the actor instance.
@@ -118,8 +130,8 @@ def main(args) -> dict:
     try:
         id = args["actor_id"]
         with Repository(id) as repository:
-            actor: __Actor__ = repository.load()
-            
+            (actor, source) = repository.load()
+
             should_isolate = args["isolate"]
             if should_isolate:
                 actor.isolate()
@@ -132,8 +144,10 @@ def main(args) -> dict:
             repository.dump(actor, should_persist)
 
         return {
-            "instance": get_actor_label(__Actor__, id),
-            "result": res
+            "result": res,
+            "source": source[0],
+            "persist": should_persist,
+            "isolate": should_isolate            
         }
 
     except Exception:
@@ -145,6 +159,8 @@ def main(args) -> dict:
 res = main({
     "actor_id": "ASDFG",
     "message": "increment",
+    "persist": True,
+    "isolate": False
 })
 
 if "error" in res:

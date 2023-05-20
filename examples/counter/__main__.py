@@ -21,7 +21,7 @@ invocations_counter = {
 
 # 30 is the max number of concurrent invocations
 # 60 is the max number of invocations each minute
-n = 10
+n = 30
 
 # Invoke n times the 'increment' operation on a random actor
 # To test the concurrency, each invokation is sent on a new thread
