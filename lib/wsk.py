@@ -1,18 +1,29 @@
 import json
+from os.path import join as join_paths
+from os import getcwd
 import requests
+from subprocess import run
+import sys
 
 # For references about OpenWhisk REST API
 # https://petstore.swagger.io/?url=https://raw.githubusercontent.com/openwhisk/openwhisk/master/core/controller/src/main/resources/apiv1swagger.json
 
 
-class OpenWhisk:
+class OpenWhiskInterface:
+    def create(self, name: str, code: str) -> dict:
+        pass
+
+    def invoke(self, name: str, id: str, message: str) -> None:
+        pass
+
+
+class OpenWhisk(OpenWhiskInterface):
     def __init__(self, api_host: str, auth: str) -> None:
         self.api_host = api_host
         self.auth = auth.split(":")
         self.namespace = "_"
 
     def create(self, name: str, code: str) -> dict:
-
         res = requests.put(
             f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{name}",
             auth=(self.auth[0], self.auth[1]),
@@ -58,3 +69,18 @@ class OpenWhisk:
 
         res = json.loads(res.content)
         print(json.dumps(res, indent=2))
+
+
+class LocalOpenWhisk(OpenWhiskInterface):
+    def create(self, name: str, code: str) -> dict:
+        return {}
+
+    def invoke(self, name: str, id: str, message: str) -> None:
+        path = join_paths(getcwd(), "build", name)
+        if path not in sys.path:
+            sys.path.append(path)
+
+
+        with open(join_paths(path,  "__main__.py"), "r") as f:
+            compiled_code = compile(f.read(), "<string>", "exec")
+            exec(compiled_code, globals())

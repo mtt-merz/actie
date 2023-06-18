@@ -6,13 +6,12 @@ import json
 from os import mkdir, getcwd, chdir
 from os.path import join as join_paths, exists
 from shutil import rmtree, make_archive, copyfile
-import subprocess
 from typing import Optional
 import typer
 import venv
 
 from cli.utils import *
-from examples import counter as example
+from examples import collector as example
 import lib
 import resources
 import server
@@ -159,13 +158,14 @@ def build() -> None:
 
 
 @app.command()
-def run() -> None:
+def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
     """Run Actie project."""
     build()
 
     with open(join_paths(getcwd(), "config.json"), "r") as f:
         config = json.loads(f.read())["wsk"]
-        wsk = lib.OpenWhisk(config["host"], config["auth"])
+        wsk = lib.LocalOpenWhisk() if local else lib.OpenWhisk(
+            config["host"], config["auth"])
 
     # Deploy actors to OpenWhisk
     for actor in get_actors():
@@ -193,15 +193,20 @@ def run() -> None:
         else:
             typer.echo("Actor deployed")
 
-            code = res["exec"]["code"]
-            code = code[:100] + f"...({len(code) - 200} chars dropped)"
-            res["exec"]["code"] = code
-            typer.echo(json.dumps(res, indent=2))
+            if local:
+                typer.echo(res)
+            else:
+                code = res["exec"]["code"]
+                code = code[:100] + f"...({len(code) - 200} chars dropped)"
+                res["exec"]["code"] = code
+                typer.echo(json.dumps(res, indent=2))
 
     # Execute entrypoint
     typer.echo("\nStart running project...")
-    with open(join_paths(getcwd(), "src", "__main__.py"), "r") as f:
-        exec(f.read())
+    main_path = join_paths(getcwd(), "src", "__main__.py")
+    with open(main_path, "r") as f:
+        compiled_code = compile(f.read(), "<string>", "exec")
+        exec(compiled_code)
 
 
 @app.command()

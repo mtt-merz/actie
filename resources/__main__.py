@@ -72,7 +72,7 @@ class Repository:
             raise requests.RequestException(
                 f"Fail fetching snapshot from object storage\n{response.content}")
 
-        actor = __Actor__(self.id)
+        actor = __Actor__()
 
         print("Snapshot neither found remotely: initialize actor")
         return (actor, Source.NONE)
@@ -140,6 +140,8 @@ def main(args) -> dict:
             msg = args["message"]
             res = actor.receive(msg)
 
+            print(f'\nExecution result: \n {res}\n')
+
             should_persist = args["persist"]
             repository.dump(actor, should_persist)
 
@@ -147,7 +149,7 @@ def main(args) -> dict:
             "result": res,
             "source": source[0],
             "persist": should_persist,
-            "isolate": should_isolate            
+            "isolate": should_isolate
         }
 
     except Exception:
@@ -165,5 +167,3 @@ res = main({
 
 if "error" in res:
     print(res["error"])
-else:
-    print(json.dumps(res, indent=2))

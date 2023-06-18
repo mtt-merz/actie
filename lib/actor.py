@@ -8,18 +8,9 @@ from lib.wsk import OpenWhisk
 
 
 class Actor:
-    id: str = None
-
-    def __init_subclass__(cls, **kwargs):
-        if id == None:
-            raise NotImplementedError()
-
-        cls.name = get_actor_name(cls)
-        cls.label = get_actor_label(cls, cls.id)
-
     def receive(self, msg: str) -> str:
         raise NotImplementedError()
-    
+
     is_isolated: bool = False
 
     def isolate(self) -> None:
