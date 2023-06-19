@@ -128,6 +128,8 @@ def main(args) -> dict:
         the execution results
     '''
     try:
+        print(f"Received args: {args}")
+        
         id = args["actor_id"]
         with Repository(id) as repository:
             (actor, source) = repository.load()
@@ -157,13 +159,3 @@ def main(args) -> dict:
             "error": traceback.format_exc()
         }
 
-
-res = main({
-    "actor_id": "ASDFG",
-    "message": "increment",
-    "persist": True,
-    "isolate": False
-})
-
-if "error" in res:
-    print(res["error"])

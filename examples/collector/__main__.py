@@ -4,7 +4,7 @@ import random
 from threading import Thread
 import time
 
-from lib import OpenWhisk
+# from lib import OpenWhisk
 
 # The system is composed by a certain number of sensors, mocked as threads,
 # that periodically sends messages to a collector.

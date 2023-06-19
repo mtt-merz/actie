@@ -184,7 +184,7 @@ def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
             code = code.decode("utf-8")
             res = wsk.create(actor, code)
 
-        if "error" in res.keys():
+        if not local and "error" in res.keys():
             if "already exists" in res["error"]:
                 typer.echo("Actor already deployed")
             else:
@@ -193,9 +193,7 @@ def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
         else:
             typer.echo("Actor deployed")
 
-            if local:
-                typer.echo(res)
-            else:
+            if not local:
                 code = res["exec"]["code"]
                 code = code[:100] + f"...({len(code) - 200} chars dropped)"
                 res["exec"]["code"] = code

@@ -73,7 +73,7 @@ class OpenWhisk(OpenWhiskInterface):
 
 class LocalOpenWhisk(OpenWhiskInterface):
     def create(self, name: str, code: str) -> dict:
-        return {}
+        pass
 
     def invoke(self, name: str, id: str, message: str) -> None:
         path = join_paths(getcwd(), "build", name)
@@ -82,5 +82,16 @@ class LocalOpenWhisk(OpenWhiskInterface):
 
 
         with open(join_paths(path,  "__main__.py"), "r") as f:
-            compiled_code = compile(f.read(), "<string>", "exec")
+            args = {
+                "actor_id": id,
+                "message": message,
+                "isolate": False,
+                "persist": True
+            }            
+            
+            # Invoke "main" with specified args, then print result
+            code = f.read()
+            code = code + f"res = main({args})\nprint(res)"
+            
+            compiled_code = compile(code, "<string>", "exec")
             exec(compiled_code, globals())
