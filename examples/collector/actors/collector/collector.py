@@ -11,20 +11,22 @@ class Collector(Actor):
         for position, states in self.data.items():
             data[position] = sum(states) / len(states)
 
-        self.send("MEAN", "printer", {
-            "title": "Mean states",
-            "data": json.dumps(data)
-        })
+        self.send("MEAN", "printer",
+                  json.dumps({
+                      "title": "Mean states",
+                      "data": json.dumps(data)
+                  }))
 
     def print_max(self) -> None:
         data = {}
         for position, states in self.data.items():
             data[position] = max(states)
 
-        self.send("MAX", "printer", {
-            "title": "Max states",
-            "data": json.dumps(data)
-        })
+        self.send("MAX", "printer",
+                  json.dumps({
+                      "title": "Max states",
+                      "data": json.dumps(data)
+                  }))
 
     def receive(self, msg: str) -> str:
         try:
