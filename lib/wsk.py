@@ -80,18 +80,28 @@ class LocalOpenWhisk(OpenWhiskInterface):
         if path not in sys.path:
             sys.path.append(path)
 
-
         with open(join_paths(path,  "__main__.py"), "r") as f:
             args = {
                 "actor_id": id,
                 "message": message,
                 "isolate": False,
                 "persist": True
-            }            
-            
+            }
+
             # Invoke "main" with specified args, then print result
             code = f.read()
             code = code + f"res = main({args})\nprint(res)"
-            
+
             compiled_code = compile(code, "<string>", "exec")
             exec(compiled_code, globals())
+
+
+def get_wsk(local: bool) -> OpenWhiskInterface:
+    if (local):
+        return LocalOpenWhisk()
+
+    else:
+        with open(join_paths(getcwd(), "config.json"), "r") as f:
+            config = json.loads(f.read())["wsk"]
+
+        return OpenWhisk(config["host"], config["auth"])

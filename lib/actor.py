@@ -1,10 +1,7 @@
-from os import getcwd
-from os.path import join as join_paths
-import json
 from re import match
 from typing import Type, TypeVar
 
-from lib.wsk import OpenWhisk
+from lib.wsk import OpenWhiskInterface
 
 
 class Actor:
@@ -20,17 +17,16 @@ class Actor:
         if (self.is_isolated):
             return
 
-        pattern = r"^\w+(_\w+)*$"
-        if (not match(pattern, msg)):
-            raise ValueError(
-                "Messages should contain lower case, alphanumeric chars or undescores, " +
-                "not spaces, upper case or any other special chars.")
+        # pattern = r"^\w+(_\w+)*$"
+        # if (not match(pattern, msg)):
+        #     raise ValueError(
+        #         "Messages should contain lower case, alphanumeric chars or undescores, " +
+        #         "not spaces, upper case or any other special chars.")
 
-        with open(join_paths(getcwd(), "config.json"), "r") as f:
-            config = json.loads(f.read())["wsk"]
-            wsk = OpenWhisk(config["host"], config["auth"])
+        self.wsk.invoke(name, id, msg)
 
-        wsk.invoke(name, id, msg)
+    def set_wsk(self, wsk: OpenWhiskInterface):
+        self.wsk = wsk
 
 
 A = TypeVar("A", bound=Actor)

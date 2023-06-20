@@ -4,7 +4,8 @@ import random
 from threading import Thread
 import time
 
-# from lib import OpenWhisk
+from lib import OpenWhiskInterface
+
 
 # The system is composed by a certain number of sensors, mocked as threads,
 # that periodically sends messages to a collector.
@@ -20,9 +21,9 @@ import time
 sensors_count = 10
 period = 10
 
-# with open(os.path.join(os.getcwd(), "config.json"), "r") as f:
-#     config = json.loads(f.read())["wsk"]
-#     wsk = OpenWhisk(config["host"], config["auth"])
+
+wsk: OpenWhiskInterface
+
 
 def start_sensor(index: int,
                  period=period, wsk=wsk,

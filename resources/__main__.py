@@ -8,6 +8,8 @@ import traceback
 from lib.actor import get_actor_label
 from __actor__ import __Actor__
 
+from lib.wsk import get_wsk
+
 
 class Source:
     LOCAL = "local",
@@ -128,11 +130,14 @@ def main(args) -> dict:
         the execution results
     '''
     try:
-        print(f"Received args: {args}")
-        
+        print(f"\nReceived args: {args}")
+
         id = args["actor_id"]
         with Repository(id) as repository:
             (actor, source) = repository.load()
+            
+            __local__: bool
+            actor.set_wsk(get_wsk(__local__))
 
             should_isolate = args["isolate"]
             if should_isolate:
@@ -158,4 +163,3 @@ def main(args) -> dict:
         return {
             "error": traceback.format_exc()
         }
-

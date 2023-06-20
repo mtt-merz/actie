@@ -13,6 +13,7 @@ import venv
 from cli.utils import *
 from examples import collector as example
 import lib
+import lib.wsk
 import resources
 import server
 
@@ -127,13 +128,13 @@ def build() -> None:
         # Add {actor_build_path}/__main__.py
         main_in_path = join_paths(get_path(resources), "__main__.py")
         main_out_path = join_paths(actor_build_path, "__main__.py")
-        with open(main_in_path, "r") as fin, \
-                open(main_out_path, "w") as fout:
-            code = fin.read()
+        with open(main_in_path, "r") as f_in, \
+                open(main_out_path, "w") as f_out:
+            code = f_in.read()
             code = code.replace("__actor__", actor)
             code = code.replace("__Actor__", actor.capitalize())
 
-            fout.write(code)
+            f_out.write(code)
 
         # Install dependencies
         # typer.echo("Adding dependencies...")
@@ -164,15 +165,27 @@ def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
 
     with open(join_paths(getcwd(), "config.json"), "r") as f:
         config = json.loads(f.read())["wsk"]
-        wsk = lib.LocalOpenWhisk() if local else lib.OpenWhisk(
-            config["host"], config["auth"])
+
+    wsk = lib.wsk.LocalOpenWhisk() if local else lib.wsk.OpenWhisk(
+        config["host"], config["auth"])
 
     # Deploy actors to OpenWhisk
     for actor in get_actors():
         typer.echo(f"Deploying actor '{actor}'...")
 
-        # Archive all files
         actor_build_path = join_paths(getcwd(), "build", actor)
+
+        # Set proper OpenWhiskInterface
+        with open(join_paths(actor_build_path, "__main__.py"), "r+") as f:
+            code = f.read()
+            code = code.replace("__local__: bool", "")
+            code = code.replace("__local__", str(local))
+
+            f.seek(0)
+            f.truncate()
+            f.write(code)
+
+        # Archive all files
         archive_path = make_archive(
             join_paths(actor_build_path, actor), "zip",
             root_dir=actor_build_path
