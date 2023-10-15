@@ -11,7 +11,7 @@ class Collector(Actor):
         for position, states in self.data.items():
             data[position] = sum(states) / len(states)
 
-        self.send("MEAN", "printer",
+        self.send("printer", "MEAN",
                   json.dumps({
                       "title": "Mean states",
                       "data": json.dumps(data)
@@ -22,7 +22,7 @@ class Collector(Actor):
         for position, states in self.data.items():
             data[position] = max(states)
 
-        self.send("MAX", "printer",
+        self.send("printer", "MAX",
                   json.dumps({
                       "title": "Max states",
                       "data": json.dumps(data)

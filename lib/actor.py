@@ -13,7 +13,7 @@ class Actor:
     def isolate(self) -> None:
         self.is_isolated = True
 
-    def send(self, id: str,  name: str, msg: str, *args) -> None:
+    def send(self, family: str, name: str, msg: str, *args) -> None:
         if (self.is_isolated):
             return
 
@@ -23,7 +23,7 @@ class Actor:
         #         "Messages should contain lower case, alphanumeric chars or undescores, " +
         #         "not spaces, upper case or any other special chars.")
 
-        self.wsk.invoke(name, id, msg)
+        self.wsk.invoke(family, name, msg)
 
     def set_wsk(self, wsk: OpenWhiskInterface):
         self.wsk = wsk
@@ -32,9 +32,9 @@ class Actor:
 A = TypeVar("A", bound=Actor)
 
 
-def get_actor_name(type: Type[A]) -> str:
+def get_actor_family(type: Type[A]) -> str:
     return type.__name__.lower()
 
 
-def get_actor_label(type: Type[A], id: str) -> str:
-    return f"{get_actor_name(type)}@{id}"
+def get_actor_label(type: Type[A], name: str) -> str:
+    return f"{get_actor_family(type)}@{name}"

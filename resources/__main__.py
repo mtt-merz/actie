@@ -18,9 +18,9 @@ class Source:
 
 
 class Repository:
-    def __init__(self, id: str) -> None:
-        self.id = id
-        self.file_name = f"{get_actor_label(__Actor__, id)}.pkl"
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.file_name = f"{get_actor_label(__Actor__, name)}.pkl"
 
         with open(join_paths(getcwd(), "config.json"), "r") as f:
             host = json.loads(f.read())["storage"]["host"]
@@ -115,8 +115,8 @@ def main(args) -> dict:
     args: dict
         dictionary of parameters to run the right actor actions.
 
-        actor_id: str
-            the id of the actor instance
+        actor_name: str
+            the name of the actor instance
         message: str
             the name of the action to invoke
         isolate: bool
@@ -132,8 +132,8 @@ def main(args) -> dict:
     try:
         print(f"\nReceived args: {args}")
 
-        id = args["actor_id"]
-        with Repository(id) as repository:
+        name = args["actor_name"]
+        with Repository(name) as repository:
             (actor, source) = repository.load()
             
             __local__: bool

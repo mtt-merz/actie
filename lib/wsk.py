@@ -10,10 +10,10 @@ import sys
 
 
 class OpenWhiskInterface:
-    def create(self, name: str, code: str) -> dict:
+    def create(self, action_name: str, code: str) -> dict:
         pass
 
-    def invoke(self, name: str, id: str, message: str) -> None:
+    def invoke(self, action_name: str, actor_name: str, message: str) -> None:
         pass
 
 
@@ -23,9 +23,9 @@ class OpenWhisk(OpenWhiskInterface):
         self.auth = auth.split(":")
         self.namespace = "_"
 
-    def create(self, name: str, code: str) -> dict:
+    def create(self, action_name: str, code: str) -> dict:
         res = requests.put(
-            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{name}",
+            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action_name}",
             auth=(self.auth[0], self.auth[1]),
             headers={
                 "content-type": "application/json"
@@ -35,7 +35,7 @@ class OpenWhisk(OpenWhiskInterface):
             },
             json={
                 "namespace": self.namespace,
-                "name": name,
+                "name": action_name,
                 "exec": {
                     "kind": "python:3",
                     "code": code,
@@ -50,9 +50,9 @@ class OpenWhisk(OpenWhiskInterface):
 
         return json.loads(res.content)
 
-    def invoke(self, name: str, id: str, message: str) -> None:
+    def invoke(self, action_name: str, actor_name: str, message: str) -> None:
         res = requests.post(
-            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{name}",
+            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action_name}",
             auth=(self.auth[0], self.auth[1]),
             headers={
                 "content-type": "application/json"
@@ -61,8 +61,8 @@ class OpenWhisk(OpenWhiskInterface):
                 "result": True,
             },
             json={
-                "actor_id": id,
-                "actor_type": name,
+                "actor_name": actor_name,
+                # "actor_family": action_name,
                 "message": message,
             },
         )
@@ -72,17 +72,17 @@ class OpenWhisk(OpenWhiskInterface):
 
 
 class LocalOpenWhisk(OpenWhiskInterface):
-    def create(self, name: str, code: str) -> dict:
+    def create(self, action_name: str, code: str) -> dict:
         pass
 
-    def invoke(self, name: str, id: str, message: str) -> None:
-        path = join_paths(getcwd(), "build", name)
+    def invoke(self, action_name: str, actor_name: str, message: str) -> None:
+        path = join_paths(getcwd(), "build", action_name)
         if path not in sys.path:
             sys.path.append(path)
 
         with open(join_paths(path,  "__main__.py"), "r") as f:
             args = {
-                "actor_id": id,
+                "actor_name": actor_name,
                 "message": message,
                 "isolate": False,
                 "persist": True

@@ -32,10 +32,10 @@ with open(os.path.join(os.getcwd(), "config.json"), "r") as f:
     wsk = OpenWhisk(config["host"], config["auth"])
 
 for i in range(n):
-    id = random.choice(list(invocations_counter))
-    invocations_counter[id] += 1
+    name = random.choice(list(invocations_counter))
+    invocations_counter[name] += 1
 
-    t = Thread(target=wsk.invoke, args=['counter', id, 'increment'])
+    t = Thread(target=wsk.invoke, args=['counter', name, 'increment'])
     t.start()
 
     threads.append(t)

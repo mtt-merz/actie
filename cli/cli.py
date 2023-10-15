@@ -22,17 +22,17 @@ app = typer.Typer()
 
 
 @app.command()
-def create(name: str = typer.Argument(...)) -> None:
+def create(project_name: str = typer.Argument(...)) -> None:
     """Create a new Actie project."""
-    typer.echo(f"Start creating '{name}' project...")
+    typer.echo(f"Start creating '{project_name}' project...")
 
-    project_path = join_paths(getcwd(), name)
+    project_path = join_paths(getcwd(), project_name)
 
     if (exists(project_path)):
         # TODO: Cut this off, when not in development
         rmtree(project_path)
         # typer.echo(
-        #     f"Project '{name}' already exists. Try with a different name.")
+        #     f"Project '{project_name}' already exists. Try with a different name.")
         # raise typer.Exit()
 
     mkdir(project_path)
@@ -74,7 +74,7 @@ def create(name: str = typer.Argument(...)) -> None:
         f.write(".vscode/\n")
         f.write("config.json\n")
 
-    typer.echo(f"\nProject '{name}' created.")
+    typer.echo(f"\nProject '{project_name}' created.")
     raise typer.Exit()
 
 
