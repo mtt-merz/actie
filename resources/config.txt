@@ -1,9 +1,0 @@
-{
-    "wsk": {
-        "host": <WSK_HOST>,
-        "auth": <AUTH>
-    },
-    "storage": {
-        "host": <STORAGE_HOST>
-    }
-}

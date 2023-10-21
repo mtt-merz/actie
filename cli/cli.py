@@ -8,7 +8,6 @@ from os.path import join as join_paths, exists
 from shutil import rmtree, make_archive, copyfile
 from typing import Optional
 import typer
-import venv
 
 from cli.utils import *
 from examples import collector as example
@@ -51,10 +50,17 @@ def create(project_name: str = typer.Argument(...)) -> None:
     )
 
     # Move config
-    copyfile(
-        join_paths(get_path(resources), "config.txt"),
-        join_paths(project_path, "config.json")
-    )
+    config_path = join_paths(project_path, "config.json")
+    with open(config_path, 'w') as f:
+        f.write('''{
+    "wsk": {
+        "host": <WSK_HOST>,
+        "auth": <AUTH>
+    },
+    "storage": {
+        "host": <STORAGE_HOST>
+    }
+}''')
 
     typer.echo("Adding files...")
 
