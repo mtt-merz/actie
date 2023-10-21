@@ -50,17 +50,10 @@ def create(project_name: str = typer.Argument(...)) -> None:
     )
 
     # Move config
-    config_path = join_paths(project_path, "config.json")
-    with open(config_path, 'w') as f:
-        f.write('''{
-    "wsk": {
-        "host": <WSK_HOST>,
-        "auth": <AUTH>
-    },
-    "storage": {
-        "host": <STORAGE_HOST>
-    }
-}''')
+    copyfile(
+        join_paths(get_path(resources), "config"),
+        join_paths(project_path, "config.json")
+    )
 
     typer.echo("Adding files...")
 

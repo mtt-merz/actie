@@ -15,14 +15,14 @@ pip install -r requirements.txt
 Now you can install the project itself
 
 ```shell
-pip install .
+pip install -e .
 ```
 
-To actually run actie commands, add the script to the PATH.
+<!-- To actually run actie commands, add the script to your PATH.
 
 ```shell
-export PATH="~/.local/bin:$PATH"
-```
+export PATH="$HOME/.local/bin:$PATH"
+``` -->
 
 ## Create an Actie project
 
