@@ -23,6 +23,7 @@ app = typer.Typer()
 @app.command()
 def create(project_name: str = typer.Argument(...)) -> None:
     """Create a new Actie project."""
+
     typer.echo(f"Start creating '{project_name}' project...")
 
     project_path = join_paths(getcwd(), project_name)
@@ -81,9 +82,7 @@ def create(project_name: str = typer.Argument(...)) -> None:
 def build() -> None:
     """Build Actie project."""
 
-    if not exists(join_paths(getcwd(), "README.md")):
-        typer.echo("Please run 'actie create' first.")
-        raise typer.Exit()
+    check_project_validity()
 
     typer.echo(f"Start building...")
 
@@ -160,7 +159,12 @@ def build() -> None:
 @app.command()
 def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
     """Run Actie project."""
-    build()
+
+    check_project_validity(build_required=True)
+
+    if not exists(join_paths(getcwd(), "README.md")):
+        typer.echo("Please run 'actie create' first.")
+        raise typer.Exit()
 
     with open(join_paths(getcwd(), "config.json"), "r") as f:
         config = json.loads(f.read())["wsk"]
@@ -222,6 +226,8 @@ def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
 @app.command()
 def clean() -> None:
     """Clean Actie project."""
+
+    check_project_validity()
 
     build_path = join_paths(getcwd(), "build")
     if exists(build_path):
