@@ -1,4 +1,3 @@
-from re import match
 from typing import Type, TypeVar
 
 from lib.wsk import OpenWhiskInterface
@@ -16,12 +15,6 @@ class Actor:
     def send(self, family: str, name: str, msg: str, *args) -> None:
         if (self.is_isolated):
             return
-
-        # pattern = r"^\w+(_\w+)*$"
-        # if (not match(pattern, msg)):
-        #     raise ValueError(
-        #         "Messages should contain lower case, alphanumeric chars or undescores, " +
-        #         "not spaces, upper case or any other special chars.")
 
         self.wsk.invoke(family, name, msg)
 
