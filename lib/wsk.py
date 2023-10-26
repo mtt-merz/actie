@@ -37,7 +37,7 @@ class OpenWhisk(OpenWhiskInterface):
                 "namespace": self.namespace,
                 "name": action_name,
                 "exec": {
-                    "kind": "python:3",
+                    "kind": "python:3.10",
                     "code": code,
                     "binary": True
                 },
