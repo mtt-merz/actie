@@ -160,7 +160,7 @@ def build() -> None:
 def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
     """Run Actie project."""
 
-    check_project_validity(build_required=True)
+    check_project_validity(is_build_required=True)
 
     with open(join_paths(getcwd(), "config.json"), "r") as f:
         config = json.loads(f.read())["wsk"]

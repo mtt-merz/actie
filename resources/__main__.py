@@ -64,7 +64,7 @@ class Repository:
         print("Snapshot not found locally, trying loading from remote...")
         response = requests.get(self.url)
 
-        if (response.ok):
+        if (response.ok and response.content):
             actor = pickle.loads(response.content)
 
             print("Snaphsot loaded remotely.")
