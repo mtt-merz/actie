@@ -10,7 +10,7 @@ from typing import Optional
 import typer
 
 from cli.utils import *
-from examples import collector as example
+from examples import counter as example
 import lib
 import lib.wsk
 import resources
@@ -161,10 +161,6 @@ def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
     """Run Actie project."""
 
     check_project_validity(build_required=True)
-
-    if not exists(join_paths(getcwd(), "README.md")):
-        typer.echo("Please run 'actie create' first.")
-        raise typer.Exit()
 
     with open(join_paths(getcwd(), "config.json"), "r") as f:
         config = json.loads(f.read())["wsk"]

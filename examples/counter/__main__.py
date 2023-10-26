@@ -4,7 +4,7 @@ import random
 from threading import Thread
 import time
 
-from lib import OpenWhisk
+from lib import OpenWhiskInterface
 
 
 # Multiple purposes:
@@ -27,9 +27,7 @@ n = 30
 # To test the concurrency, each invokation is sent on a new thread
 threads = []
 
-with open(os.path.join(os.getcwd(), "config.json"), "r") as f:
-    config = json.loads(f.read())["wsk"]
-    wsk = OpenWhisk(config["host"], config["auth"])
+wsk: OpenWhiskInterface
 
 for i in range(n):
     name = random.choice(list(invocations_counter))

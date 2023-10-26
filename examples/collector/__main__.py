@@ -32,7 +32,8 @@ def start_sensor(index: int,
         random_sleep_time = random.random() * period
         time.sleep(random_sleep_time)
 
-        wsk.invoke('collector', id='collector_0',
+        wsk.invoke('collector',
+                   id='collector_0',
                    message=json.dumps({
                        "position": index,
                        "state": random.randint(0, 100),
