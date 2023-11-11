@@ -27,10 +27,10 @@ class Actor:
     def receive(self, msg: str) -> str:
         raw: dict = json.loads(msg)
 
-        if "name" not in raw.keys():
-            raise ValueError("Missing 'name' field in message")
+        if "action" not in raw.keys():
+            raise ValueError("Missing 'action' field in message")
 
-        action: str = raw.get("name")
+        action: str = raw.get("action")
         if not hasattr(self, action):
             raise NotImplementedError(f"Action '{action}' not implemented")
 
@@ -38,7 +38,7 @@ class Actor:
             self.sender: ActorAddress = ActorAddress(raw.get["sender"])
 
         execute = getattr(self, action)
-        result = execute(**raw.get("body", {}))
+        result = execute(**raw.get("args", {}))
 
         return str(result)
 
@@ -47,9 +47,9 @@ class Actor:
             return
 
         msg = {
-            "name": action,
+            "action": action,
             "sender": self.get_address_label(),
-            "body": kwargs,
+            "args": kwargs,
         }
         self.wsk.invoke(
             recipient.family,

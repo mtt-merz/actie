@@ -33,7 +33,11 @@ for i in range(n):
     name = random.choice(list(invocations_counter))
     invocations_counter[name] += 1
 
-    t = Thread(target=wsk.invoke, args=['counter', name, '{"name": "increment"}'])
+    msg = {
+        "action": "increment",
+        "args": {"value": 2}
+    }
+    t = Thread(target=wsk.invoke, args=['counter', name, json.dumps(msg)])
     t.start()
 
     threads.append(t)

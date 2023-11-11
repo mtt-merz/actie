@@ -5,18 +5,18 @@ class Counter(Actor):
     def __init__(self) -> None:
         self.value = 0
 
-    def increment(self) -> str:
+    def increment(self, value: int = 1) -> str:
         old_value = self.value
-        self.value += 1
+        self.value += value
         # if (self.value < 5):
         #     self.send(self.family, self.name, msg)
-        
+
         new_value = self.value
         return f'Value incremented from {old_value} to {new_value}'
 
-    def decrement(self) -> str:
+    def decrement(self, value: int = 1) -> str:
         old_value = self.value
-        self.value -= 1
+        self.value -= value
 
         new_value = self.value
         return f'Value decremented from {old_value} to {new_value}'

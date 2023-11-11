@@ -47,7 +47,7 @@ def create(project_name: str = typer.Argument(...)) -> None:
     # Move sample actor
     copy_tree(
         get_path(example),
-        join_paths(project_path, "src")
+        project_path,
     )
 
     # Move config
