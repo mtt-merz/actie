@@ -13,8 +13,8 @@ def get_actors() -> list[str]:
 
 
 def check_project_validity(is_build_required: bool = False) -> None:
-    if not exists(join_paths(getcwd(), "README.md")):
-        typer.echo("Please run 'actie create' first.")
+    if not exists(join_paths(getcwd(), "config.json")):
+        typer.echo("Please move into a valid actie project.")
         raise typer.Exit()
     
     if is_build_required and not exists(join_paths(getcwd(), 'build')):

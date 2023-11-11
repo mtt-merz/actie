@@ -25,14 +25,23 @@ class Actor:
         ).label
 
     def receive(self, msg: str) -> str:
-        raw = json.loads(msg)
-        if not hasattr(self, raw["name"]):
-            raise NotImplementedError()
+        raw: dict = json.loads(msg)
 
-        self.sender = ActorAddress(raw["sender"])
-        execute = getattr(self, raw["name"])
+        # Get action name
+        if "name" not in raw.keys():
+            raise ValueError("Missing 'name' field in message")
+        action: str = raw.get("name")
+        
+        if not hasattr(self, action):
+            raise NotImplementedError(f"Action '{action}' not implemented")
 
-        return execute(**raw["body"])
+        # Save sender, just for this execution
+        if "sender" in raw.keys():
+            self.sender: ActorAddress = ActorAddress(raw.get["sender"])
+
+        # Get related method and execute
+        execute = getattr(self, action)
+        return execute(**raw.get("body", {}))
 
     def send(self, recipient: ActorAddress, action: str, **kwargs) -> None:
         if self.is_isolated:
@@ -49,8 +58,11 @@ class Actor:
             json.dumps(msg),
         )
 
-    def send_back(self, action: str, **kwargs) -> None:
-        return self.send(self.sender["family"], self.sender["name"], action, kwargs)
+    def reply(self, action: str, **kwargs) -> None:
+        if self.sender is None:
+            raise ValueError("Missing sender: cannot reply")
+
+        return self.send(self.sender, action, kwargs)
 
     is_isolated: bool = False
 
