@@ -135,6 +135,7 @@ def main(args) -> dict:
         name = args["actor_name"]
         with Repository(name) as repository:
             (actor, source) = repository.load()
+            print(f"\nLoaded actor: {actor}")
             
             __local__: bool
             actor.set_wsk(get_wsk(__local__))

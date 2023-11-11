@@ -1,22 +1,61 @@
+import json
 from typing import Type, TypeVar
 
 from lib.wsk import OpenWhiskInterface
 
 
+class ActorAddress:
+    def __init__(self, family: str, name: str) -> None:
+        self.family = family
+        self.name = name
+
+        self.label = f"{self.family}@{self.name}"
+
+    def __init__(self, string: str) -> None:
+        family, name = string.split("@")
+        self.family = family
+        self.name = name
+
+
 class Actor:
+    def get_address_label(self):
+        ActorAddress = ActorAddress(
+            family=self.__class__.__name__.lower(),
+            name=self.name,
+        ).label
+
     def receive(self, msg: str) -> str:
-        raise NotImplementedError()
+        raw = json.loads(msg)
+        if not hasattr(self, raw["name"]):
+            raise NotImplementedError()
+
+        self.sender = ActorAddress(raw["sender"])
+        execute = getattr(self, raw["name"])
+
+        return execute(**raw["body"])
+
+    def send(self, recipient: ActorAddress, action: str, **kwargs) -> None:
+        if self.is_isolated:
+            return
+
+        msg = {
+            "name": action,
+            "sender": self.get_address_label(),
+            "body": kwargs,
+        }
+        self.wsk.invoke(
+            recipient.family,
+            recipient.name,
+            json.dumps(msg),
+        )
+
+    def send_back(self, action: str, **kwargs) -> None:
+        return self.send(self.sender["family"], self.sender["name"], action, kwargs)
 
     is_isolated: bool = False
 
     def isolate(self) -> None:
         self.is_isolated = True
-
-    def send(self, family: str, name: str, msg: str, *args) -> None:
-        if (self.is_isolated):
-            return
-
-        self.wsk.invoke(family, name, msg)
 
     def set_wsk(self, wsk: OpenWhiskInterface):
         self.wsk = wsk
