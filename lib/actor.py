@@ -27,23 +27,22 @@ class Actor:
     def receive(self, msg: str) -> str:
         raw: dict = json.loads(msg)
 
-        # Get action name
         if "name" not in raw.keys():
             raise ValueError("Missing 'name' field in message")
+
         action: str = raw.get("name")
-        
         if not hasattr(self, action):
             raise NotImplementedError(f"Action '{action}' not implemented")
 
-        # Save sender, just for this execution
         if "sender" in raw.keys():
             self.sender: ActorAddress = ActorAddress(raw.get["sender"])
 
-        # Get related method and execute
         execute = getattr(self, action)
-        return execute(**raw.get("body", {}))
+        result = execute(**raw.get("body", {}))
 
-    def send(self, recipient: ActorAddress, action: str, **kwargs) -> None:
+        return str(result)
+
+    def send(self, action: str, recipient: ActorAddress,  **kwargs) -> None:
         if self.is_isolated:
             return
 

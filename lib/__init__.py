@@ -1,4 +1,4 @@
-from lib.actor import Actor
+from lib.actor import Actor, ActorAddress
 from lib.wsk import OpenWhiskInterface
 
 __app_name__ = "actie"
