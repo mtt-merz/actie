@@ -1,29 +1,21 @@
 import json
-from typing import Type, TypeVar
 
 from lib.wsk import OpenWhiskInterface
 
 
-class ActorAddress:
+class Address:
     def __init__(self, family: str, name: str) -> None:
         self.family = family
         self.name = name
 
-        self.label = f"{self.family}@{self.name}"
+    def from_label(label: str) -> "Address":
+        return Address(*label.split("@"))
 
-    def __init__(self, string: str) -> None:
-        family, name = string.split("@")
-        self.family = family
-        self.name = name
+    def __str__(self) -> str:
+        return f"{self.family}@{self.name}"
 
 
 class Actor:
-    def get_address_label(self):
-        ActorAddress = ActorAddress(
-            family=self.__class__.__name__.lower(),
-            name=self.name,
-        ).label
-
     def receive(self, msg: str) -> str:
         raw: dict = json.loads(msg)
 
@@ -35,21 +27,21 @@ class Actor:
             raise NotImplementedError(f"Action '{action}' not implemented")
 
         if "sender" in raw.keys():
-            self.sender: ActorAddress = ActorAddress(raw.get["sender"])
+            self.sender: Address = Address.from_label(raw["sender"])
 
         execute = getattr(self, action)
         result = execute(**raw.get("args", {}))
 
         return str(result)
 
-    def send(self, action: str, recipient: ActorAddress,  **kwargs) -> None:
+    def send(self, action: str, recipient: Address,  args: dict = {}) -> None:
         if self.is_isolated:
             return
 
         msg = {
             "action": action,
-            "sender": self.get_address_label(),
-            "args": kwargs,
+            "sender": str(self),
+            "args": args,
         }
         self.wsk.invoke(
             recipient.family,
@@ -57,11 +49,11 @@ class Actor:
             json.dumps(msg),
         )
 
-    def reply(self, action: str, **kwargs) -> None:
+    def reply(self, action: str, args: dict = {}) -> None:
         if self.sender is None:
             raise ValueError("Missing sender: cannot reply")
 
-        return self.send(self.sender, action, kwargs)
+        return self.send(action, self.sender, args)
 
     is_isolated: bool = False
 
@@ -71,13 +63,17 @@ class Actor:
     def set_wsk(self, wsk: OpenWhiskInterface):
         self.wsk = wsk
 
+    def set_name(self, name: str) -> None:
+        self.name = name
 
-A = TypeVar("A", bound=Actor)
+    @classmethod
+    def get_label(cls, name: str) -> str:
+        address = Address(
+            family=cls.__name__.lower(),
+            name=name,
+        )
 
+        return str(address)
 
-def get_actor_family(type: Type[A]) -> str:
-    return type.__name__.lower()
-
-
-def get_actor_label(type: Type[A], name: str) -> str:
-    return f"{get_actor_family(type)}@{name}"
+    def __str__(self) -> str:
+        return self.get_label(self.name)

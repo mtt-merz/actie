@@ -5,7 +5,6 @@ import pickle
 import requests
 import traceback
 
-from lib.actor import get_actor_label
 from __actor__ import __Actor__
 
 from lib.wsk import get_wsk
@@ -20,7 +19,7 @@ class Source:
 class Repository:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.file_name = f"{get_actor_label(__Actor__, name)}.pkl"
+        self.file_name = f"{__Actor__.get_label(name)}.pkl"
 
         with open(join_paths(getcwd(), "config.json"), "r") as f:
             host = json.loads(f.read())["storage"]["host"]
@@ -36,7 +35,7 @@ class Repository:
     def __exit__(self, *args) -> None:
         self.file.close()
 
-    def load(self) -> tuple:
+    def load(self) -> tuple[__Actor__, Source]:
         '''Load the actor instance.
 
         Check first locally; if nothing is found, check the (remote) object storage.
@@ -135,8 +134,9 @@ def main(args) -> dict:
         name = args["actor_name"]
         with Repository(name) as repository:
             (actor, source) = repository.load()
+            actor.set_name(name)
             print(f"\nLoaded actor: {actor}")
-            
+
             __local__: bool
             actor.set_wsk(get_wsk(__local__))
 
