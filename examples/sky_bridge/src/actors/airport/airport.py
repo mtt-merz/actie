@@ -4,37 +4,24 @@ from lib import Actor
 
 class Airport(Actor):
     def __init__(self) -> None:
-        self.departures = []
-        self.arrivals = []
+        self.flights = []
 
     def add_flight(self, flight: dict) -> str:
-        if flight["departure"] == self.name:
-            self.departures.append(flight)
 
-        if flight["arrival"] == self.name:
-            self.arrivals.append(flight)
+        self.flights.append(flight)
 
-    def get_departing_flights(self) -> str:
-        self.reply("get_departing_flights",
-                   departures=json.dump(self.departures))
+    def get_flights(self) -> str:
+        self.reply("get_flights",
+                   departures=json.dump(self.flights))
 
-        return self.departures
+        return self.flights
 
-    def get_arriving_flights(self, body) -> str:
-        self.reply("get_arriving_flights",
-                   arrivals=json.dump(self.arrivals))
+    def find_flights(self, destination: str) -> str:
+        flights = [
+            flight for flight in self.flights
+            if flight["arrival"] == destination
+        ]
 
-        return self.arrivals
-
-    def find_flights(self, destination: str | None) -> str:
-        if destination == None:
-            return self.get_departing_flights()
-
-        flights = []
-        for flight in self.departures:
-            if flight["arrival"] == destination:
-                flights.append(flight)
-
-        self.reply("find_flights", flights=json.dump(flights))
+        self.reply("show_flights", flights=json.dump(flights))
 
         return flights

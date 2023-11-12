@@ -1,5 +1,5 @@
 import json
-from lib import Actor, ActorAddress
+from lib import Actor, Address
 
 
 class Flight(Actor):
@@ -12,7 +12,7 @@ class Flight(Actor):
 
         self.passengers = []
 
-        self.send("add_flight", ActorAddress("airport", self.departure),  flight={
+        self.send("add_flight", Address("airport", self.departure),  flight={
             "departure": self.departure,
             "arrival": self.arrival,
             "plane": self.plane,
