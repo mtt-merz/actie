@@ -3,9 +3,9 @@ import os
 import random
 from threading import Thread
 
-from lib import OpenWhiskInterface
+from lib import OpenWhisk
 
-wsk: OpenWhiskInterface
+wsk: OpenWhisk
 
 # planes owned by sky_bridge
 planes = [

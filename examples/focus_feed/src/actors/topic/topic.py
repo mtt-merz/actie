@@ -17,7 +17,9 @@ class Topic(Actor):
     def subscribe(self) -> str:
         self.subscribers.append(self.sender)
 
-        self.reply('join_topic', {"contents": self.contents})
+        if len(self.contents) > 0:
+            self.reply('append_multiple', {"contents": self.contents})
+            
         return f'User {self.sender.name} subscribed'
     
     def unsubscribe(self) -> str:

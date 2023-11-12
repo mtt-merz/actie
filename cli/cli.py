@@ -157,32 +157,18 @@ def build() -> None:
 
 
 @app.command()
-def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
+def run() -> None:
     """Run Actie project."""
 
     check_project_validity(is_build_required=True)
 
-    with open(join_paths(getcwd(), "config.json"), "r") as f:
-        config = json.loads(f.read())["wsk"]
-
-    wsk = lib.wsk.LocalOpenWhisk() if local else lib.wsk.OpenWhisk(
-        config["host"], config["auth"])
+    wsk = lib.wsk.OpenWhisk.init()
 
     # Deploy actors to OpenWhisk
     for actor in get_actors():
         typer.echo(f"Deploying actor '{actor}'...")
 
         actor_build_path = join_paths(getcwd(), "build", actor)
-
-        # Set proper OpenWhiskInterface
-        with open(join_paths(actor_build_path, "__main__.py"), "r+") as f:
-            code = f.read()
-            code = code.replace("__local__: bool", "")
-            code = code.replace("__local__", str(local))
-
-            f.seek(0)
-            f.truncate()
-            f.write(code)
 
         # Archive all files
         archive_path = make_archive(
@@ -196,7 +182,7 @@ def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
             code = code.decode("utf-8")
             res = wsk.create(actor, code)
 
-        if not local and "error" in res.keys():
+        if "error" in res.keys():
             if "already exists" in res["error"]:
                 typer.echo("Actor already deployed")
             else:
@@ -205,11 +191,10 @@ def run(local: bool = typer.Option(False, "--local", "-l")) -> None:
         else:
             typer.echo("Actor deployed")
 
-            if not local:
-                code = res["exec"]["code"]
-                code = code[:100] + f"...({len(code) - 200} chars dropped)"
-                res["exec"]["code"] = code
-                typer.echo(json.dumps(res, indent=2))
+            code = res["exec"]["code"]
+            code = code[:100] + f"...({len(code) - 200} chars dropped)"
+            res["exec"]["code"] = code
+            typer.echo(json.dumps(res, indent=2))
 
     # Execute entrypoint
     typer.echo("\nStart running project...")

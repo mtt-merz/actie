@@ -7,7 +7,7 @@ import traceback
 
 from __actor__ import __Actor__
 
-from lib.wsk import get_wsk
+from lib.wsk import OpenWhisk
 
 
 class Source:
@@ -134,15 +134,12 @@ def main(args) -> dict:
         name = args["actor_name"]
         with Repository(name) as repository:
             (actor, source) = repository.load()
-            actor.set_name(name)
-            print(f"\nLoaded actor: {actor}")
 
-            __local__: bool
-            actor.set_wsk(get_wsk(__local__))
+            actor.name = name
+            actor.is_isolated = args["isolate"]
+            actor.wsk = OpenWhisk.init()
 
-            should_isolate = args["isolate"]
-            if should_isolate:
-                actor.isolate()
+            print(f"\nActor loaded: {actor}")
 
             # Execute code
             msg = args["message"]
@@ -154,10 +151,11 @@ def main(args) -> dict:
             repository.dump(actor, should_persist)
 
         return {
+            "actor": str(actor),
             "result": res,
             "source": source[0],
             "persist": should_persist,
-            "isolate": should_isolate
+            "isolate": args["isolate"],
         }
 
     except Exception:

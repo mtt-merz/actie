@@ -37,7 +37,7 @@ class User(Actor):
         self.topics[topic] = TopicData(policy)
 
         address = Address('topic', topic)
-        self.send('subscribe', address, {"policy": policy})
+        self.send('subscribe', address)
 
         return f'Topic "{topic}" joined'
 

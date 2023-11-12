@@ -4,9 +4,9 @@ import random
 from threading import Thread
 import time
 
-from lib import OpenWhiskInterface
+from lib import OpenWhisk
 
-wsk: OpenWhiskInterface
+wsk: OpenWhisk
 
 
 wsk.invoke('user', 'Annie', json.dumps({

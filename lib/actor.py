@@ -1,6 +1,6 @@
 import json
 
-from lib.wsk import OpenWhiskInterface
+from lib.wsk import OpenWhisk
 
 
 class Address:
@@ -16,6 +16,18 @@ class Address:
 
 
 class Actor:
+    @classmethod
+    def get_label(cls, name: str) -> str:
+        address = Address(
+            family=cls.__name__.lower(),
+            name=name,
+        )
+
+        return str(address)
+
+    def __str__(self) -> str:
+        return self.get_label(self.name)
+
     def receive(self, msg: str) -> str:
         raw: dict = json.loads(msg)
 
@@ -54,26 +66,3 @@ class Actor:
             raise ValueError("Missing sender: cannot reply")
 
         return self.send(action, self.sender, args)
-
-    is_isolated: bool = False
-
-    def isolate(self) -> None:
-        self.is_isolated = True
-
-    def set_wsk(self, wsk: OpenWhiskInterface):
-        self.wsk = wsk
-
-    def set_name(self, name: str) -> None:
-        self.name = name
-
-    @classmethod
-    def get_label(cls, name: str) -> str:
-        address = Address(
-            family=cls.__name__.lower(),
-            name=name,
-        )
-
-        return str(address)
-
-    def __str__(self) -> str:
-        return self.get_label(self.name)

@@ -4,7 +4,7 @@ import random
 from threading import Thread
 import time
 
-from lib import OpenWhiskInterface
+from lib import OpenWhisk
 
 
 # The system is composed by a certain number of sensors, mocked as threads,
@@ -22,7 +22,7 @@ sensors_count = 10
 period = 10
 
 
-wsk: OpenWhiskInterface
+wsk: OpenWhisk
 
 
 def start_sensor(index: int,
