@@ -5,6 +5,7 @@
 # Python run caches
 __pycache__/
 *.pyc
+snapshots/
 
 # Package install files
 *.egg-info/

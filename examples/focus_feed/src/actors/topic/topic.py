@@ -14,15 +14,19 @@ class Topic(Actor):
 
         return f'Contents published: {self.contents}'
 
-    def subscribe(self) -> str:
-        self.subscribers.append(self.sender)
+    def subscribe(self, user: str, policy: int) -> str:
+        address = Address('user', user)
+        self.subscribers.append(address)
 
-        if len(self.contents) > 0:
-            self.reply('append_multiple', {"contents": self.contents})
-            
-        return f'User {self.sender.name} subscribed'
-    
-    def unsubscribe(self) -> str:
-        self.subscribers.remove(self.sender)
+        self.send("add_topic", address,
+                  {"policy": policy, "contents": self.contents})
 
-        return f'User {self.sender.name} unsubscribed'
+        return f'User {user} subscribed'
+
+    def unsubscribe(self, user: str) -> str:
+        address = Address('user', user)
+        self.subscribers.remove(address)
+        
+        self.send("remove_topic", address)
+
+        return f'User {user} unsubscribed'

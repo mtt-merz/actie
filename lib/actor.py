@@ -16,6 +16,11 @@ class Address:
 
 
 class Actor:
+    def __init__(self) -> None:
+        self.name: str
+        self.is_isolated: bool
+        self.wsk: OpenWhisk
+
     @classmethod
     def get_label(cls, name: str) -> str:
         address = Address(
