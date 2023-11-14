@@ -6,26 +6,40 @@ import time
 
 from lib import OpenWhisk
 
-wsk: OpenWhisk
+
+class User:
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.wsk = OpenWhisk.init()
+
+    def subscribe(self, topic: str, policy: int = 10) -> str:
+        return self.wsk.invoke('topic', topic, json.dumps({
+            'action': 'subscribe',
+            'args': {
+                'user': self.name,
+                'policy': policy
+            }
+        }))
+
+    def unsubscribe(self, topic: str) -> str:
+        return self.wsk.invoke('topic', topic, json.dumps({
+            'action': 'unsubscribe',
+            'args': {
+                'user': self.name
+            }
+        }))
 
 
-def subscribe(wsk: OpenWhisk, topic: str, policy: int = 10) -> str:
+def publish(topic: str, content: str) -> str:
+    wsk = OpenWhisk.init()
     return wsk.invoke('topic', topic, json.dumps({
-        'action': 'subscribe',
+        'action': 'publish',
         'args': {
-            'user': 'annie',
-            'policy': policy
+            'content': {'body': content}
         }
     }))
 
 
-def unsubscribe(wsk: OpenWhisk, topic: str) -> str:
-    return wsk.invoke('topic', topic, json.dumps({
-        'action': 'unsubscribe',
-        'args': {
-            'user': 'annie'
-        }
-    }))
-
-
-subscribe(wsk, 'news')
+mark = User('mark')
+annie = User('annie')
+frank = User('frank')

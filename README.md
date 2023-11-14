@@ -48,16 +48,34 @@ In order to connect to OpenWhisk, you should provide the credentials to access a
 
 N.B. The OpenWhisk instance should be aligned with the forked version available [here](https://github.com/mtt-merz/openwhisk).
 
-## Run an Actie project
+## Build and deploy an Actie project
 
-To run an Actie project, move to the project folder and use the Actie CLI as follows
-
-```shell
-actie run
-```
-
-If you just need to build the project, you can use the following command
+To deploy an Actie project, the first step is to build it, using the following command
 
 ```shell
 actie build
+```
+
+It generates the executables of each defined actor. After that, you can simply use the following command to package and register these executable into OpenWhisk.
+
+```shell
+actie deploy
+```
+
+## Invoke deployed actors
+
+A deployed actor can be invoked by an OpenWhisk instance as follows.
+
+```python
+import json
+from lib import OpenWhisk
+
+wsk = OpenWhisk.init()
+wsk.invoke(
+    <ACTOR_FAMILY>, <ACTOR_NAME>,
+    json.dumps({
+        'action': <STRING>,
+        'args': <DICT>
+    })
+)
 ```

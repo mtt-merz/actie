@@ -64,5 +64,5 @@ this implementation needs a db to store contents, subscriptions and aggregation 
 
 content: topic, timestamp, body
 
-subscription: topic, user, aggregation_policy
+subscription: topic, user, aggregation_policy, timestamp
 

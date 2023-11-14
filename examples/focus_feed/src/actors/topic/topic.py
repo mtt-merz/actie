@@ -12,7 +12,7 @@ class Topic(Actor):
         for subscriber in self.subscribers:
             self.send('append', subscriber, {"content": content})
 
-        return f'Contents published: {self.contents}'
+        return f'Content published: {content}'
 
     def subscribe(self, user: str, policy: int) -> str:
         address = Address('user', user)

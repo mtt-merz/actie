@@ -62,7 +62,8 @@ def create(project_name: str = typer.Argument(...)) -> None:
     readme_path = join_paths(project_path, "README.md")
     with open(readme_path, "w") as f:
         f.write("# Your Actie project\n")
-        f.write("Type `actie run` from the root of the project to deploy.")
+        f.write("Type `actie build` from the root of the project to build")
+        f.write("Type `actie deploy` from the root of the project to deploy")
 
     # Create .gitignore
     gitignore_path = join_paths(project_path, ".gitignore")
@@ -157,8 +158,8 @@ def build() -> None:
 
 
 @app.command()
-def run() -> None:
-    """Run Actie project."""
+def deploy() -> None:
+    """Deploy Actie project."""
 
     check_project_validity(is_build_required=True)
 
@@ -196,12 +197,14 @@ def run() -> None:
             res["exec"]["code"] = code
             typer.echo(json.dumps(res, indent=2))
 
-    # Execute entrypoint
-    typer.echo("\nStart running project...")
-    main_path = join_paths(getcwd(), "src", "__main__.py")
-    with open(main_path, "r") as f:
-        compiled_code = compile(f.read(), "<string>", "exec")
-        exec(compiled_code)
+    typer.echo("All actors deployed")
+
+    # # Execute entrypoint
+    # typer.echo("\nStart running project...")
+    # main_path = join_paths(getcwd(), "src", "__main__.py")
+    # with open(main_path, "r") as f:
+    #     compiled_code = compile(f.read(), "<string>", "exec")
+    #     exec(compiled_code)
 
 
 @app.command()
