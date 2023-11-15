@@ -66,3 +66,6 @@ content: topic, timestamp, body
 
 subscription: topic, user, aggregation_policy, timestamp
 
+
+
+DB: atlas per mongodb, heroku (ci cd da github), per le rest api chiedere a gtp di scrivere delle rest api per express
