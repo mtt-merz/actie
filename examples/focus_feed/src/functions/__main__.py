@@ -5,15 +5,14 @@ from os import getcwd
 from lib import init_openwhisk
 
 
-def create_action(name: str) -> dict:
-    wsk = init_openwhisk()
-    with open(join_paths(getcwd(), f"src/functions/{name}.py"), "r") as f:
-        code = f.read()
-
-    return wsk.create(name, code)
-
+wsk = init_openwhisk()
 
 for action in ['publish', 'aggregate', 'subscribe', 'unsubscribe']:
-    result = create_action(action)
+    path = f"src/functions/{action}.py"
+    with open(join_paths(getcwd(), path), "r") as f:
+        code = f.read()
+
+    result = wsk.create(action, code)
+
     print(json.dumps(result, indent=2))
     print(f'Action "{action}" deployed\n')

@@ -34,21 +34,19 @@ class Actor:
     def __str__(self) -> str:
         return self.get_label(self.name)
 
-    def receive(self, msg: str) -> str:
-        raw: dict = json.loads(msg)
-
-        if "action" not in raw.keys():
+    def receive(self, msg: dict) -> str:
+        if "action" not in msg.keys():
             raise ValueError("Missing 'action' field in message")
 
-        action: str = str(raw.get("action"))
+        action: str = str(msg.get("action"))
         if not hasattr(self, action):
             raise NotImplementedError(f"Action '{action}' not implemented")
 
-        if "sender" in raw.keys():
-            self.sender: Address = get_address_from_label(raw["sender"])
+        if "sender" in msg.keys():
+            self.sender: Address = get_address_from_label(msg["sender"])
 
         execute = getattr(self, action)
-        result = execute(**raw.get("args", {}))
+        result = execute(**msg.get("args", {}))
 
         return str(result)
 

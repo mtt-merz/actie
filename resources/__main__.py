@@ -138,8 +138,9 @@ def main(args) -> dict:
 
             actor.name = name
             actor.is_isolated = args["isolate"]
-            actor.wsk = init_openwhisk()
 
+            actor.wsk = init_openwhisk()
+ 
             print(f"\nActor loaded: {actor}")
 
             # Execute code
@@ -154,7 +155,7 @@ def main(args) -> dict:
         return {
             "actor": str(actor),
             "result": res,
-            "source": source,
+            "source": str(source),
             "persist": should_persist,
             "isolate": args["isolate"],
         }

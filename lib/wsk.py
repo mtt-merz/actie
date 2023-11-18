@@ -57,7 +57,7 @@ class OpenWhisk:
             action=family,
             body={
                 "actor_name": name,
-                "message": json.dumps(message),
+                "message": message,
             },
             result=result,
         )

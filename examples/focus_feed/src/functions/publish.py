@@ -1,7 +1,5 @@
 import requests
 import json
-from os.path import join as join_paths
-from os import getcwd
 import requests
 import traceback
 
@@ -18,7 +16,7 @@ class Database:
         )
 
         return json.loads(res.content)
-    
+
     def post(self, table: str, body: dict) -> dict:
         res = requests.post(
             f"{self.api_host}/{table}",
@@ -33,28 +31,34 @@ class Database:
 
 def main(args) -> dict:
     try:
-        topic = args['message']['topic']
-        content = args['message']['content']
+        topic = args['topic']
+        content = args['content']
 
         db = Database()
 
-        # add content to contents table
-        db.post('contents', {})
+        # # add content to contents table
+        # db.post('contents', {})
 
-        # get subscribers from subscriptions table
-        subscribers = db.get('subscribers')
+        # # get subscribers from subscriptions table
+        # subscribers = db.get('subscribers')
 
-        # call aggregate for each subriber
+        # # call aggregate for each subriber
         wsk = init_openwhisk()
-        for subscriber in subscribers:
-            wsk.invoke
-
+        # for subscriber in subscribers:
+        #     wsk.invoke
 
         result = db.get("todos")
 
-        return {"elements": result}
+        return {
+            "elements": result,
+            "topic": topic,
+            "content": content,
+        }
 
     except Exception:
         return {
             "error": traceback.format_exc()
         }
+
+
+# {"actor_name": "tech",   "isolate": False, "persist": False,    "message": {"action": "publish",        "args": {"content": {"body": "ciriciao"}}}}
