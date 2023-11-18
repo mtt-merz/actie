@@ -104,4 +104,4 @@ def publish(topic: str, content: str) -> str:
 
 
 logger = Logger("test")
-implementation = Implementation.ACTORS
+implementation = Implementation.FUNCTIONS

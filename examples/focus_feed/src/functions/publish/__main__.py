@@ -1,32 +1,7 @@
-import requests
-import json
-import requests
 import traceback
 
-from lib import init_openwhisk
-
-
-class Database:
-    def __init__(self):
-        self.api_host = "https://344d-2a01-e11-1402-c210-7d3-be71-a749-ef75.ngrok.io"
-
-    def get(self, table: str) -> list[dict]:
-        res = requests.get(
-            f"{self.api_host}/{table}"
-        )
-
-        return json.loads(res.content)
-
-    def post(self, table: str, body: dict) -> dict:
-        res = requests.post(
-            f"{self.api_host}/{table}",
-            headers={
-                "Content-Type": "application/json",
-            },
-            json=body,
-        )
-
-        return json.loads(res.content)
+from lib.database import Database
+from lib.wsk import init_openwhisk
 
 
 def main(args) -> dict:
@@ -51,8 +26,8 @@ def main(args) -> dict:
 
         return {
             "elements": result,
-            "topic": topic,
-            "content": content,
+            "topic": str(topic),
+            "content": str(content),
         }
 
     except Exception:
@@ -62,3 +37,5 @@ def main(args) -> dict:
 
 
 # {"actor_name": "tech",   "isolate": False, "persist": False,    "message": {"action": "publish",        "args": {"content": {"body": "ciriciao"}}}}
+
+# {'topic':'tech', 'content':'ciriciao'}
