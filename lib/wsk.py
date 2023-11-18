@@ -13,15 +13,9 @@ class OpenWhisk:
         self.auth = auth.split(":")
         self.namespace = "_"
 
-    def init() -> "OpenWhisk":
-        with open(join_paths(getcwd(), "config.json"), "r") as f:
-            config = json.loads(f.read())["wsk"]
-
-        return OpenWhisk(config["host"], config["auth"])
-
-    def create(self, action_name: str, code: str) -> dict:
+    def create(self, action: str, code: str) -> dict:
         res = requests.put(
-            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action_name}",
+            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}?overwrite=true",
             auth=(self.auth[0], self.auth[1]),
             headers={
                 "content-type": "application/json"
@@ -31,7 +25,7 @@ class OpenWhisk:
             },
             json={
                 "namespace": self.namespace,
-                "name": action_name,
+                "name": action,
                 "exec": {
                     "kind": "python:3.10",
                     "code": code,
@@ -46,22 +40,31 @@ class OpenWhisk:
 
         return json.loads(res.content)
 
-    def invoke(self, action_name: str, actor_name: str, message: str, result: bool = False) -> None:
+    def invoke(self, action: str, body: dict, result: bool = False) -> dict:
         res = requests.post(
-            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action_name}?blocking={result}&result={result}",
+            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}?blocking={result}&result={result}",
             auth=(self.auth[0], self.auth[1]),
             headers={
                 "content-type": "application/json"
             },
-            # params={
-            #     "result": True,
-            # },
-            json={
-                "actor_name": actor_name,
-                # "actor_family": action_name,
-                "message": message,
-            },
+            json=body,
         )
 
-        res = json.loads(res.content)
-        print(json.dumps(res, indent=2))
+        return json.loads(res.content)
+
+    def invoke_actor(self, family: str, name: str, message: dict, result: bool = False) -> dict:
+        return self.invoke(
+            action=family,
+            body={
+                "actor_name": name,
+                "message": json.dumps(message),
+            },
+            result=result,
+        )
+
+
+def init_openwhisk() -> OpenWhisk:
+    with open(join_paths(getcwd(), "config.json"), "r") as f:
+        config = json.loads(f.read())["wsk"]
+
+    return OpenWhisk(config["host"], config["auth"])

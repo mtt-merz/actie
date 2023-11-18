@@ -8,11 +8,12 @@ class Address:
         self.family = family
         self.name = name
 
-    def from_label(label: str) -> "Address":
-        return Address(*label.split("@"))
-
     def __str__(self) -> str:
         return f"{self.family}@{self.name}"
+
+
+def get_address_from_label(label: str) -> Address:
+    return Address(*label.split("@"))
 
 
 class Actor:
@@ -39,12 +40,12 @@ class Actor:
         if "action" not in raw.keys():
             raise ValueError("Missing 'action' field in message")
 
-        action: str = raw.get("action")
+        action: str = str(raw.get("action"))
         if not hasattr(self, action):
             raise NotImplementedError(f"Action '{action}' not implemented")
 
         if "sender" in raw.keys():
-            self.sender: Address = Address.from_label(raw["sender"])
+            self.sender: Address = get_address_from_label(raw["sender"])
 
         execute = getattr(self, action)
         result = execute(**raw.get("args", {}))
@@ -55,15 +56,14 @@ class Actor:
         if self.is_isolated:
             return
 
-        msg = {
-            "action": action,
-            "sender": str(self),
-            "args": args,
-        }
-        self.wsk.invoke(
-            recipient.family,
-            recipient.name,
-            json.dumps(msg),
+        self.wsk.invoke_actor(
+            family=recipient.family,
+            name=recipient.name,
+            message={
+                "action": action,
+                "args": args,
+                "sender": str(self),
+            },
         )
 
     def reply(self, action: str, args: dict = {}) -> None:

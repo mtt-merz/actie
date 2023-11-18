@@ -163,7 +163,7 @@ def deploy() -> None:
 
     check_project_validity(is_build_required=True)
 
-    wsk = lib.wsk.OpenWhisk.init()
+    wsk = lib.wsk.init_openwhisk()
 
     # Deploy actors to OpenWhisk
     for actor in get_actors():

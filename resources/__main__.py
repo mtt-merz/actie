@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 from os import open as osopen, fdopen, O_RDWR, O_CREAT, stat, getcwd
 from os.path import join as join_paths
@@ -7,10 +8,10 @@ import traceback
 
 from __actor__ import __Actor__
 
-from lib.wsk import OpenWhisk
+from lib.wsk import init_openwhisk
 
 
-class Source:
+class Source(Enum):
     LOCAL = "local",
     REMOTE = "remote",
     NONE = "none"
@@ -137,7 +138,7 @@ def main(args) -> dict:
 
             actor.name = name
             actor.is_isolated = args["isolate"]
-            actor.wsk = OpenWhisk.init()
+            actor.wsk = init_openwhisk()
 
             print(f"\nActor loaded: {actor}")
 
@@ -153,7 +154,7 @@ def main(args) -> dict:
         return {
             "actor": str(actor),
             "result": res,
-            "source": source[0],
+            "source": source,
             "persist": should_persist,
             "isolate": args["isolate"],
         }
