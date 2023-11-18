@@ -46,16 +46,16 @@ class OpenWhisk:
 
         return json.loads(res.content)
 
-    def invoke(self, action_name: str, actor_name: str, message: str) -> None:
+    def invoke(self, action_name: str, actor_name: str, message: str, result: bool = False) -> None:
         res = requests.post(
-            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action_name}",
+            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action_name}?blocking={result}&result={result}",
             auth=(self.auth[0], self.auth[1]),
             headers={
                 "content-type": "application/json"
             },
-            params={
-                "result": True,
-            },
+            # params={
+            #     "result": True,
+            # },
             json={
                 "actor_name": actor_name,
                 # "actor_family": action_name,
