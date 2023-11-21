@@ -17,17 +17,11 @@ class User(Actor):
 
         return self.__aggregate(topic)
 
-    def add_topic(self, policy: int, contents: list[dict]) -> str:
+    def append_topic(self, policy: int, contents: list[dict]) -> str:
         topic = self.sender.name
         self.topics[topic] = TopicData(policy, contents)
 
         return self.__aggregate(topic)
-
-    def remove_topic(self) -> str:
-        topic = self.sender.name
-        del self.topics[topic]
-
-        return f'Topic "{topic}" left'
 
     def __aggregate(self, topic: str) -> str:
         contents = self.topics[topic].contents

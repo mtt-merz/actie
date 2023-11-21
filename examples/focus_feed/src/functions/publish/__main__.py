@@ -1,3 +1,4 @@
+import time
 import traceback
 
 from lib.database import Database
@@ -11,21 +12,32 @@ def main(args) -> dict:
 
         db = Database()
 
-        # # add content to contents table
-        # db.post('contents', {})
+        # add content to contents table
+        db.post(
+            table='contents',
+            body={
+                "topic": topic,
+                "content": content,
+                "timestamp": round(time.time() * 1000),
+            }
+        )
 
-        # # get subscribers from subscriptions table
-        # subscribers = db.get('subscribers')
+        # get subscribers from subscriptions table
+        subscribers: list[str] = []
+        for subscription in db.get('subscriptions'):
+            if subscription['topic'] == topic:
+                subscribers.append(subscription['user'])
 
-        # # call aggregate for each subriber
+        # call aggregate for each subriber
         wsk = init_openwhisk()
-        # for subscriber in subscribers:
-        #     wsk.invoke
-
-        result = db.get("todos")
+        for subscriber in subscribers:
+            wsk.invoke('aggregate', {
+                "topic": topic,
+                "user": subscriber,
+            })
 
         return {
-            "elements": result,
+            "elements": subscribers,
             "topic": str(topic),
             "content": str(content),
         }

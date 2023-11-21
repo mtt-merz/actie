@@ -18,7 +18,7 @@ class Topic(Actor):
         address = Address('user', user)
         self.subscribers.append(address)
 
-        self.send("add_topic", address,
+        self.send("append_topic", address,
                   {"policy": policy, "contents": self.contents})
 
         return f'User {user} subscribed'
@@ -26,7 +26,5 @@ class Topic(Actor):
     def unsubscribe(self, user: str) -> str:
         address = Address('user', user)
         self.subscribers.remove(address)
-        
-        self.send("remove_topic", address)
 
         return f'User {user} unsubscribed'
