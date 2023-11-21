@@ -1,31 +1,21 @@
 from lib import Actor, Address
 
 
-class TopicData:
-    def __init__(self, policy: int, contents: list[dict]) -> None:
-        self.policy = policy
-        self.contents = contents
-
-
 class User(Actor):
     def __init__(self) -> None:
-        self.topics: dict[str, TopicData] = {}
+        self.topics: dict[str, list[dict]] = {}
 
     def append(self, content: dict, policy: int) -> str:
         topic = self.sender.name
 
         if topic not in self.topics.keys():
-            self.topics[topic] = TopicData(policy, [content])
+            self.topics[topic] = [content]
         else:
-            self.topics[topic].contents.append(content)
+            self.topics[topic].append(content)
 
-        return self.__aggregate(topic)
+        contents = self.topics[topic]
+        if len(contents) < policy:
+            return f"No aggregation performed: missing {policy - len(contents)} content(s)"
 
-    def __aggregate(self, topic: str) -> str:
-        contents = self.topics[topic].contents
-        if len(contents) < self.topics[topic].policy:
-            return f"No aggregation performed: missing {self.topics[topic].policy - len(contents)} content(s)"
-
-        self.topics[topic].contents = []
-
+        del self.topics[topic]
         return f"Aggregation: {contents}"
