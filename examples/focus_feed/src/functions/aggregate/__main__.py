@@ -4,30 +4,35 @@ from lib.database import Database
 
 
 def main(args) -> dict:
-    topic = args['topic']
-    user = args['user']
+    try:
+        topic = args['topic']
+        user = args['user']
 
-    db = Database()
+        db = Database()
 
-    # get policy from subscriptions table
-    subscription: dict = {}
-    for sub in db.get('subscriptions'):
-        if sub['topic'] == topic and sub['user'] == user:
-            subscription: dict = sub
-            break
+        # get policy from subscriptions table
+        subscription: dict = {}
+        for sub in db.get('subscriptions'):
+            if sub['topic'] == topic and sub['user'] == user:
+                subscription: dict = sub
+                break
 
-    policy = subscription["policy"]
-    last_published = subscription["last_published"]
+        policy = subscription["policy"]
+        last_published = subscription["last_published"]
 
-    # get last topic contents from contents table, depending on policy
-    contents: list[dict] = []
-    for content in db.get('contents'):
-        if content['topic'] == topic and content['timestamp'] > last_published:
-            contents.append(content)
+        # get last topic contents from contents table, depending on policy
+        contents: list[dict] = []
+        for content in db.get('contents'):
+            if content['topic'] == topic and content['timestamp'] > last_published:
+                contents.append(content)
 
-    if len(contents) >= policy:
+        if len(contents) >= policy:
+            return {"result": f"Topic '{topic}' no aggregation performed for user '{user}': 
+                    missing {policy - len(contents)} content(s)"}
+
         # publish contents
 
+        # update last_published timestamp
         contents.sort(key=lambda x: x["timestamp"])
         last_published_timestamp = contents[-1]["timestamp"]
         db.post(
@@ -41,4 +46,11 @@ def main(args) -> dict:
             }
         )
 
-    return args
+        return {
+            "result": f"Topic '{topic}' aggregation for user '{user}': {contents}"
+        }
+
+    except Exception:
+        return {
+            "error": traceback.format_exc()
+        }

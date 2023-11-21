@@ -7,6 +7,7 @@ def main(args) -> dict:
     try:
         topic = args['topic']
         user = args['user']
+        policy = args['policy']
 
         db = Database()
 
@@ -23,11 +24,18 @@ def main(args) -> dict:
                 "result": f"User '{user}' not subscribed to topic '{topic}'"
             }
 
-        # remove from subscriptions table
-        db.delete('subscriptions', subscription["id"])
+        # set policy to subscriptions table
+        db.post(
+            table='subscriptions',
+            id=subscription["id"],
+            body={
+                "topic": topic,
+                "user": user,
+                "policy": policy,
+            })
 
         return {
-            "result": f"User '{user}' unsubscribed from topic '{topic}'"
+            "result": f"User '{user}' policy set to {policy} for topic '{topic}'"
         }
 
     except Exception:

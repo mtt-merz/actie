@@ -37,9 +37,7 @@ def main(args) -> dict:
             })
 
         return {
-            "elements": subscribers,
-            "topic": str(topic),
-            "content": str(content),
+            "result": f"Content '{content}' published in topic '{topic}'"
         }
 
     except Exception:

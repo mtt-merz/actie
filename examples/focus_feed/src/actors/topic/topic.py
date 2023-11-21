@@ -4,27 +4,32 @@ from lib import Actor, Address
 class Topic(Actor):
     def __init__(self) -> None:
         self.contents: list[dict] = []
-        self.subscribers: dict[Address, int] = {}
+        self.subscribers: list[Address] = []
 
-    def subscribe(self, user: str, policy: int) -> str:
+    def add_subscriber(self, user: str) -> str:
+        if user in self.subscribers:
+            return f"User '{user}' already subscribed"
+
         address = Address("user", user)
-        self.subscribers[address] = policy
+        self.subscribers.append(address)
 
-        return f"User {user} subscribed"
+        return f"User '{user}' subscribed"
 
-    def unsubscribe(self, user: str) -> str:
+    def remove_subscriber(self, user: str) -> str:
+        if user not in self.subscribers:
+            return f"User '{user}' not subscribed"
+
         address = Address("user", user)
-        del self.subscribers[address]
+        self.subscribers.remove (address)
 
-        return f"User {user} unsubscribed"
+        return f"User '{user}' unsubscribed"
 
     def publish(self, content: dict) -> str:
         self.contents.append(content)
 
-        for subscriber in self.subscribers.keys():
+        for subscriber in self.subscribers:
             self.send("append", subscriber, {
                 "content": content,
-                "policy": self.subscribers[subscriber]
             })
 
-        return f"Content published: {content}"
+        return f"Content '{content}' published"

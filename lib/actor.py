@@ -1,5 +1,3 @@
-import json
-
 from lib.wsk import OpenWhisk
 
 
