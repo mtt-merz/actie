@@ -15,13 +15,13 @@ class OpenWhisk:
 
     def create(self, action: str, code: str) -> dict:
         res = requests.put(
-            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}?overwrite=true",
+            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}",
             auth=(self.auth[0], self.auth[1]),
             headers={
                 "content-type": "application/json"
             },
             params={
-                "result": True,
+                "overwrite": True,
             },
             json={
                 "namespace": self.namespace,
@@ -42,10 +42,14 @@ class OpenWhisk:
 
     def invoke(self, action: str, body: dict, result: bool = False) -> dict:
         res = requests.post(
-            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}?blocking={result}&result={result}",
+            f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}",
             auth=(self.auth[0], self.auth[1]),
             headers={
                 "content-type": "application/json"
+            },
+            params={
+                "blocking": result,
+                "result": result,
             },
             json=body,
         )
