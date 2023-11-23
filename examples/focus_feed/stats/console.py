@@ -1,9 +1,8 @@
-from configparser import ConfigParser
 from enum import Enum
 from sys import implementation
 
 from lib import init_openwhisk
-from utils import Logger
+from logger import Logger
 
 
 class Implementation(Enum):
