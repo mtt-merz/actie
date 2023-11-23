@@ -11,11 +11,17 @@ def main(args) -> dict:
         db = Database()
 
         # get policy from subscriptions table
-        subscription: dict = {}
+        subscription: dict | None = None
         for sub in db.get('subscriptions'):
             if sub['topic'] == topic and sub['user'] == user:
                 subscription: dict = sub
                 break
+
+        # check if user was subscribed
+        if subscription is None:
+            return {
+                "result": f"User '{user}' not subscribed to topic '{topic}'"
+            }
 
         policy = subscription["policy"]
         last_published = subscription["last_published"]
