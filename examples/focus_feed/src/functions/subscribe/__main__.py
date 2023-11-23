@@ -1,3 +1,4 @@
+import json
 import traceback
 
 from lib.database import Database
@@ -40,3 +41,12 @@ def main(args) -> dict:
         return {
             "error": traceback.format_exc()
         }
+
+
+def test():
+    res = main({
+        "topic": "tech1",
+        "user": "marco",
+    })
+
+    print(json.dumps(res, indent=2))

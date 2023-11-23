@@ -27,7 +27,7 @@ for action in actions:
 
     # Move internal libraries
     copy_tree(
-        join_paths(getcwd(), "lib"),
+        join_paths(getcwd(), "utils", "lib"),
         join_paths(action_build_path, "lib")
     )
 
@@ -40,7 +40,7 @@ for action in actions:
     print(f"Actor '{action}' built")
 
 
-if False:
+if True:
     print('\nDEPLOY ACTIONS')
     for action in actions:
         action_build_path = join_paths(getcwd(), "src", "functions", action)

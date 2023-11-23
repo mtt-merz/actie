@@ -14,7 +14,7 @@ class Implementation(Enum):
 wsk = init_openwhisk()
 
 
-def subscribe(topic: str, user: str, policy: int = 10) -> str:
+def subscribe(topic: str, user: str, policy: int | None = None) -> str:
     def execute():
         match implementation:
             case Implementation.ACTORS:
@@ -39,7 +39,7 @@ def subscribe(topic: str, user: str, policy: int = 10) -> str:
                         'user': user,
                         'policy': policy,
                     },
-                    result=False,
+                    result=True,
                 )
 
     return logger.log(f'subscribe user "{user}" to topic "{topic}"', execute)
@@ -74,7 +74,7 @@ def unsubscribe(topic: str, user: str) -> str:
     return logger.log(f'unsubscribe user "{user}" from topic "{topic}"', execute)
 
 
-def publish(topic: str, content: str) -> str:
+def publish(topic: str, article: str) -> str:
     def execute():
         match implementation:
             case Implementation.ACTORS:
@@ -84,7 +84,7 @@ def publish(topic: str, content: str) -> str:
                     message={
                         'action': 'publish',
                         'args': {
-                           'content': {'body': content}
+                           'content': {'body': article}
                         }
                     },
                     result=True,
@@ -95,12 +95,12 @@ def publish(topic: str, content: str) -> str:
                     action='publish',
                     body={
                         "topic": topic,
-                        "content": content,
+                        "article": article,
                     },
                     result=True,
                 )
 
-    return logger.log(f'publish content "{content}" to topic "{topic}"', execute)
+    return logger.log(f'publish article "{article}" to topic "{topic}"', execute)
 
 
 logger = Logger("test")
