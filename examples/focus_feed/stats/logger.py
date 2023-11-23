@@ -7,12 +7,12 @@ from os.path import join as join_paths, exists
 
 class Logger:
     def __init__(self, name: str) -> None:
-        log_dir = join_paths(getcwd(), 'logs')
+        log_dir = join_paths(getcwd(), 'logs', name)
         if not exists(log_dir):
             mkdir(log_dir)
 
         date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.file_name = join_paths(log_dir, f'{date}_{name}.csv')
+        self.file_name = join_paths(log_dir, f'{date}.csv')
 
     def log(self, message: str, execute) -> str:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

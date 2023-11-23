@@ -1,5 +1,4 @@
 from enum import Enum
-from sys import implementation
 
 from lib import init_openwhisk
 from logger import Logger
@@ -10,97 +9,87 @@ class Implementation(Enum):
     FUNCTIONS = 'functions'
 
 
-wsk = init_openwhisk()
+class Console:
+    def __init__(self,
+                 implementation: Implementation,
+                 id: int | None = None,) -> None:
+        self.implementation = implementation
 
+        self.logger = Logger(
+            f"{id if id is not None else 'test'}_{implementation.name}")
+        self.wsk = init_openwhisk()
 
-def subscribe(topic: str, user: str, policy: int | None = None) -> str:
-    def execute():
-        match implementation:
-            case Implementation.ACTORS:
-                return wsk.invoke_actor(
-                    family='topic',
-                    name=topic,
-                    message={
-                        'action': 'subscribe',
-                        'args': {
-                           'user': user,
-                           'policy': policy
-                        }
-                    },
-                    result=True,
-                )
+    def subscribe(self, topic: str, user: str, policy: int = 1) -> str:
+        return self.__execute(
+            label=f'subscribe user "{user}" to topic "{topic}"',
+            actor_family='user',
+            actor_name=user,
+            actor_args={
+                'topic': topic,
+                'policy': policy,
+            },
+            function='subscribe',
+            function_args={
+                'topic': topic,
+                'user': user,
+                'policy': policy
+            }
+        )
 
-            case Implementation.FUNCTIONS:
-                return wsk.invoke(
-                    action='subscribe',
-                    body={
-                        'topic': topic,
-                        'user': user,
-                        'policy': policy,
-                    },
-                    result=True,
-                )
+    def unsubscribe(self, topic: str, user: str) -> str:
+        return self.__execute(
+            label=f'unsubscribe user "{user}" from topic "{topic}"',
+            actor_family='user',
+            actor_name=user,
+            actor_args={
+                'topic': topic,
+            },
+            function='unsubscribe',
+            function_args={
+                'topic': topic,
+                'user': user
+            }
+        )
 
-    return logger.log(f'subscribe user "{user}" to topic "{topic}"', execute)
+    def publish(self, topic: str, article: str) -> str:
+        return self.__execute(
+            label=f'publish article "{article}" to topic "{topic}"',
+            actor_family='topic',
+            actor_name=topic,
+            actor_args={
+                'article': article
+            },
+            function='publish',
+            function_args={
+                'topic': topic,
+                'article': article
+            }
+        )
 
+    def __execute(self,
+                  label: str,
+                  actor_family: str, actor_name: str,
+                  function: str,
+                  actor_args: dict,
+                  function_args: dict) -> str:
+        def execute():
+            match self.implementation:
+                case Implementation.ACTORS:
+                    return self.wsk.invoke_actor(
+                        family=actor_family,
+                        name=actor_name,
+                        message={
+                            'action': function,
+                            'args': actor_args
+                        },
+                        result=True,
+                    )
 
-def unsubscribe(topic: str, user: str) -> str:
-    def execute():
-        match implementation:
-            case Implementation.ACTORS:
-                return wsk.invoke_actor(
-                    family='topic',
-                    name=topic,
-                    message={
-                        'action': 'unsubscribe',
-                        'args': {
-                            'user': user
-                        }
-                    },
-                    result=True,
-                )
+                case Implementation.FUNCTIONS:
+                    return self.wsk.invoke(
+                        action=function,
+                        body=function_args,
+                        result=True,
+                    )
 
-            case Implementation.FUNCTIONS:
-                return wsk.invoke(
-                    action='unsubscribe',
-                    body={
-                        'topic': topic,
-                        'user': user,
-                    },
-                    result=True,
-                )
-
-    return logger.log(f'unsubscribe user "{user}" from topic "{topic}"', execute)
-
-
-def publish(topic: str, article: str) -> str:
-    def execute():
-        match implementation:
-            case Implementation.ACTORS:
-                return wsk.invoke_actor(
-                    family='topic',
-                    name=topic,
-                    message={
-                        'action': 'publish',
-                        'args': {
-                           'content': {'body': article}
-                        }
-                    },
-                    result=True,
-                )
-
-            case Implementation.FUNCTIONS:
-                return wsk.invoke(
-                    action='publish',
-                    body={
-                        "topic": topic,
-                        "article": article,
-                    },
-                    result=True,
-                )
-
-    return logger.log(f'publish article "{article}" to topic "{topic}"', execute)
-
-
-logger = Logger("test")
-implementation = Implementation.FUNCTIONS
+        return self.logger.log(label, execute)

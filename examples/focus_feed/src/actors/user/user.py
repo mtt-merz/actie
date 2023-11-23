@@ -19,8 +19,8 @@ class User(Actor):
         contents = self.topics[topic].contents
         policy = self.topics[topic].policy
         if len(contents) < policy:
-            return f"Topic '{topic}' no aggregation performed: 
-            missing {policy - len(contents)} content(s)"
+            return (f"Topic '{topic}' no aggregation performed: " +
+                    f"missing {policy - len(contents)} content(s)")
 
         del self.topics[topic]
         return f"Topic '{topic}' aggregation: {contents}"

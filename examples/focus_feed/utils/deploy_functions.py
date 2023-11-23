@@ -1,12 +1,10 @@
 import base64
-from distutils.dir_util import copy_tree, remove_tree
-from inspect import getabsfile
+from distutils.dir_util import copy_tree
 import json
-from os.path import join as join_paths, exists
-from os import getcwd, mkdir
+from os.path import join as join_paths
+from os import getcwd
 from shutil import make_archive, copyfile
 
-import lib
 from lib import init_openwhisk
 
 
