@@ -11,20 +11,47 @@ class Database:
 
         self.api_host = config["host"]
 
-    def get(self, table: str) -> list[dict]:
-        res = requests.get(
-            f"{self.api_host}/{table}"
-        )
-
-        return json.loads(res.content)
-
-    def post(self, table: str, body: dict) -> dict:
+    def create(self, path: str, body: dict = {}) -> None:
         res = requests.post(
-            f"{self.api_host}/{table}",
+            url=f"{self.api_host}/{path}",
             headers={
                 "Content-Type": "application/json",
             },
             json=body,
         )
 
+        if not res.ok:
+            raise Exception(f"Error: {res.status_code} - {res.content}")
+
+    def read(self, path: str, query: dict[str, str] = {}) -> list[dict]:
+        res = requests.get(
+            url=f"{self.api_host}/{path}",
+            params=query
+        )
+
+        if not res.ok:
+            raise Exception(f"Error: {res.status_code} - {res.content}")
+
         return json.loads(res.content)
+
+    def update(self, path: str, body: dict = {}, query: dict[str, str] = {}) -> None:
+        res = requests.patch(
+            url=f"{self.api_host}/{path}",
+            headers={
+                "Content-Type": "application/json",
+            },
+            json=body,
+            params=query,
+        )
+
+        if not res.ok:
+            raise Exception(f"Error: {res.status_code} - {res.content}")
+
+    def delete(self, path: str, query: dict[str, str] = {}) -> None:
+        res = requests.delete(
+            url=f"{self.api_host}/{path}",
+            params=query
+        )
+
+        if not res.ok:
+            raise Exception(f"Error: {res.status_code} - {res.content}")

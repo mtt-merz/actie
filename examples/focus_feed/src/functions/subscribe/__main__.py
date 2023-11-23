@@ -12,17 +12,23 @@ def main(args) -> dict:
         db = Database()
 
         # check if user already subscribed
-        for subscription in db.get('subscriptions'):
-            if subscription['topic'] == topic and subscription['user'] == user:
-                return {
-                    "result": f"User '{user}' already subscribed to topic '{topic}'"
-                }
+        subscriptions: list[dict] = db.read(
+            path='subscriptions',
+            query={
+                'topic': f'eq.{topic}',
+                'user_name': f'eq.{user}'
+            })
+
+        if len(subscriptions) > 0:
+            return {
+                "result": f"User '{user}' already subscribed to topic '{topic}'"
+            }
 
         # add to subscriptions table
-        db.post('subscriptions', {
+        db.create('subscriptions', {
+            "user_name": user,
             "topic": topic,
-            "user": user,
-            "policy": policy or 1,
+            "user_policy": policy or 1,
             "last_published": 0,
         })
 

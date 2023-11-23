@@ -11,26 +11,27 @@ def main(args) -> dict:
 
         db = Database()
 
-        # get subscription
-        subscription: dict | None = None
-        for sub in db.get('subscriptions'):
-            if sub['topic'] == topic and sub['user'] == user:
-                subscription = sub
-                break
-
-        # check if user was subscribed
-        if subscription is None:
+        # check if user is subscribed
+        subcriptions = db.read(
+            path='subscriptions',
+            query={
+                'topic': f'eq.{topic}',
+                'user_name': f'eq.{user}'
+            }
+        )
+        if len(subcriptions) == 0:
             return {
                 "result": f"User '{user}' not subscribed to topic '{topic}'"
             }
 
         # set policy to subscriptions table
-        db.post(
-            table='subscriptions',
-            id=subscription["id"],
+        db.update(
+            path='subscriptions',
+            query={
+                'topic': f'eq.{topic}',
+                'user_name': f'eq.{user}'
+            },
             body={
-                "topic": topic,
-                "user": user,
                 "policy": policy,
             })
 

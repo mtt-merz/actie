@@ -1,3 +1,4 @@
+import json
 import time
 import traceback
 
@@ -8,36 +9,39 @@ from lib.wsk import init_openwhisk
 def main(args) -> dict:
     try:
         topic = args['topic']
-        content = args['content']
+        article = args['article']
 
         db = Database()
 
-        # add content to contents table
-        db.post(
-            table='contents',
+        # add article to articles table
+        db.create(
+            path='articles',
             body={
                 "topic": topic,
-                "content": content,
-                "timestamp": round(time.time() * 1000),
+                "body": article,
+                "published": round(time.time() * 1000),
             }
         )
 
         # get subscribers from subscriptions table
-        subscribers: list[str] = []
-        for subscription in db.get('subscriptions'):
-            if subscription['topic'] == topic:
-                subscribers.append(subscription['user'])
+        subscribers: list[dict] = db.read(
+            path='subscriptions',
+            query={
+                'topic': f'eq.{topic}'
+            },
+        )
+        print(subscribers)
 
         # call aggregate for each subriber
         wsk = init_openwhisk()
         for subscriber in subscribers:
             wsk.invoke('aggregate', {
                 "topic": topic,
-                "user": subscriber,
+                "user": subscriber["user_name"],
             })
 
         return {
-            "result": f"Content '{content}' published in topic '{topic}'"
+            "result": f"Article '{article}' published in topic '{topic}'"
         }
 
     except Exception:
@@ -46,6 +50,10 @@ def main(args) -> dict:
         }
 
 
-# {"actor_name": "tech",   "isolate": False, "persist": False,    "message": {"action": "publish",        "args": {"content": {"body": "ciriciao"}}}}
+def test():
+    result = main({
+        "topic": "tech",
+        "article": "ciriciao",
+    })
 
-# {'topic':'tech', 'content':'ciriciao'}
+    print(json.dumps(result, indent=2))

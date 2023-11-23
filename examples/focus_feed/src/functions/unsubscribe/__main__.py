@@ -10,21 +10,26 @@ def main(args) -> dict:
 
         db = Database()
 
-        # get subscription
-        subscription: dict | None = None
-        for sub in db.get('subscriptions'):
-            if sub['topic'] == topic and sub['user'] == user:
-                subscription = sub
-                break
+        # check if user is subscribed
+        subscriptions: list[dict] = db.read(
+            path='subscriptions',
+            query={
+                'topic': f'eq.{topic}',
+                'user_name': f'eq.{user}'
+            })
 
-        # check if user was subscribed
-        if subscription is None:
+        if len(subscriptions) == 0:
             return {
                 "result": f"User '{user}' not subscribed to topic '{topic}'"
             }
 
         # remove from subscriptions table
-        db.delete('subscriptions', subscription["id"])
+        db.delete(
+            path='subscriptions',
+            query={
+                'topic': f'eq.{topic}',
+                'user_name': f'eq.{user}'
+            })
 
         return {
             "result": f"User '{user}' unsubscribed from topic '{topic}'"

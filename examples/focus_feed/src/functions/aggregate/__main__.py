@@ -11,43 +11,51 @@ def main(args) -> dict:
         db = Database()
 
         # get policy from subscriptions table
-        subscription: dict = {}
-        for sub in db.get('subscriptions'):
-            if sub['topic'] == topic and sub['user'] == user:
-                subscription: dict = sub
-                break
+        subscriptions: list[dict] = db.read(
+            path='subscriptions',
+            query={
+                'topic': f'eq.{topic}',
+                'user_name': f'eq.{user}'
+            }
+        )
+        if len(subscriptions) == 0:
+            return {
+                "result": f"User '{user}' not subscribed to topic '{topic}'"
+            }
 
-        policy = subscription["policy"]
+        subscription = subscriptions[0]
+
+        policy = subscription["user_policy"]
         last_published = subscription["last_published"]
 
-        # get last topic contents from contents table, depending on policy
-        contents: list[dict] = []
-        for content in db.get('contents'):
-            if content['topic'] == topic and content['timestamp'] > last_published:
-                contents.append(content)
+        # get last topic articles from arcticles table, depending on policy
+        articles: list[dict] = db.read(
+            path='articles',
+            query={
+                'topic': f'eq.{topic}',
+                'published': f'gt.{last_published}'
+            }
+        )
 
-        if len(contents) >= policy:
-            return {"result": f"Topic '{topic}' no aggregation performed for user '{user}': 
-                    missing {policy - len(contents)} content(s)"}
-
-        # publish contents
+        if len(articles) >= policy:
+            return {"result": f"Topic '{topic}' no aggregation performed for user '{user}':" +
+                              f"missing {policy - len(articles)} article(s)"}
 
         # update last_published timestamp
-        contents.sort(key=lambda x: x["timestamp"])
-        last_published_timestamp = contents[-1]["timestamp"]
-        db.post(
-            table='subscriptions',
-            id=subscription["id"],
+        articles.sort(key=lambda x: x["published"])
+        timestamp = articles[-1]["published"]
+        db.update(
+            path=f'subscriptions/{subscription["id"]}',
             body={
                 "user": user,
                 "topic": topic,
                 "policy": policy,
-                "last_published": last_published_timestamp,
+                "last_published": timestamp,
             }
         )
 
         return {
-            "result": f"Topic '{topic}' aggregation for user '{user}': {contents}"
+            "result": f"Topic '{topic}' aggregation for user '{user}': {articles}"
         }
 
     except Exception:

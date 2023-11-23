@@ -12,18 +12,22 @@ from lib import init_openwhisk
 
 wsk = init_openwhisk()
 
-for action in ['publish', 'aggregate', 'subscribe', 'unsubscribe']:
-    print(f"Deploying action '{action}'...")
+actions = [
+    "publish",
+    "aggregate",
+    "subscribe",
+    "unsubscribe",
+    "set_policy",
+]
 
+print('\nBUILD ACTIONS')
+
+for action in actions:
     action_build_path = join_paths(getcwd(), "src", "functions", action)
-
-    print(f"\n[{action}]")
-
-    print("Moving files...")
 
     # Move internal libraries
     copy_tree(
-        getabsfile(lib).removesuffix("/__init__.py"),
+        join_paths(getcwd(), "lib"),
         join_paths(action_build_path, "lib")
     )
 
@@ -35,30 +39,34 @@ for action in ['publish', 'aggregate', 'subscribe', 'unsubscribe']:
 
     print(f"Actor '{action}' built")
 
-    # Archive all files
-    archive_path = make_archive(
-        join_paths(action_build_path, action), "zip",
-        root_dir=action_build_path
-    )
 
-    # Deploy actions
-    with open(archive_path, "rb") as f:
-        code = base64.b64encode(f.read())
-        code = code.decode("utf-8")
-        res = wsk.create(action, code)
+if False:
+    print('\nDEPLOY ACTIONS')
+    for action in actions:
+        action_build_path = join_paths(getcwd(), "src", "functions", action)
 
-    if "error" in res.keys():
-        if "already exists" in res["error"]:
-            print("Action already deployed")
+        # Archive all files
+        archive_path = make_archive(
+            join_paths(action_build_path, action), "zip",
+            root_dir=action_build_path
+        )
+
+        # Deploy actions
+        with open(archive_path, "rb") as f:
+            code = base64.b64encode(f.read())
+            code = code.decode("utf-8")
+            res = wsk.create(action, code)
+
+        if "error" in res.keys():
+            if "already exists" in res["error"]:
+                print("Action already deployed")
+            else:
+                raise Exception(res["error"])
+
         else:
-            raise Exception(res["error"])
+            print("Action deployed")
 
-    else:
-        print("Action deployed")
-
-        code = res["exec"]["code"]
-        code = code[:100] + f"...({len(code) - 200} chars dropped)"
-        res["exec"]["code"] = code
-        print(json.dumps(res, indent=2))
-
-print("All actions deployed")
+            code = res["exec"]["code"]
+            code = code[:100] + f"...({len(code) - 200} chars dropped)"
+            res["exec"]["code"] = code
+            print(json.dumps(res, indent=2))
