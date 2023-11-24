@@ -5,8 +5,8 @@ from logger import Logger
 
 
 class Implementation(Enum):
-    ACTORS = 'actors'
-    FUNCTIONS = 'functions'
+    ACTORS = 'actie'
+    FUNCTIONS = 'base'
 
 
 class Console:
@@ -19,9 +19,8 @@ class Console:
             f"{id if id is not None else 'test'}_{implementation.name}")
         self.wsk = init_openwhisk()
 
-    def subscribe(self, topic: str, user: str, policy: int = 1) -> str:
+    def subscribe(self, topic: str, user: str, policy: int = 1, log_args: dict = {}) -> str:
         return self.__execute(
-            label=f'subscribe user "{user}" to topic "{topic}"',
             actor_family='user',
             actor_name=user,
             actor_args={
@@ -33,12 +32,12 @@ class Console:
                 'topic': topic,
                 'user': user,
                 'policy': policy
-            }
+            },
+            log_args=log_args
         )
 
-    def unsubscribe(self, topic: str, user: str) -> str:
+    def unsubscribe(self, topic: str, user: str, log_args: dict = {}) -> str:
         return self.__execute(
-            label=f'unsubscribe user "{user}" from topic "{topic}"',
             actor_family='user',
             actor_name=user,
             actor_args={
@@ -48,12 +47,12 @@ class Console:
             function_args={
                 'topic': topic,
                 'user': user
-            }
+            },
+            log_args=log_args
         )
 
-    def publish(self, topic: str, article: str) -> str:
+    def publish(self, topic: str, article: str, log_args: dict = {}) -> str:
         return self.__execute(
-            label=f'publish article "{article}" to topic "{topic}"',
             actor_family='topic',
             actor_name=topic,
             actor_args={
@@ -63,15 +62,48 @@ class Console:
             function_args={
                 'topic': topic,
                 'article': article
-            }
+            },
+            log_args=log_args
+        )
+
+    def set_policy(self, topic: str, user: str, policy: int, log_args: dict = {}) -> str:
+        return self.__execute(
+            actor_family='user',
+            actor_name=user,
+            actor_args={
+                'topic': topic,
+                'policy': policy
+            },
+            function='set_policy',
+            function_args={
+                'user': user,
+                'topic': topic,
+                'policy': policy
+            },
+            log_args=log_args
+        )
+    
+    def aggregate(self, topic: str, user: str, log_args: dict = {}) -> str:
+        return self.__execute(
+            actor_family='user',
+            actor_name=user,
+            actor_args={
+                'topic': topic,
+            },
+            function='set_policy',
+            function_args={
+                'user': user,
+                'topic': topic,
+            },
+            log_args=log_args
         )
 
     def __execute(self,
-                  label: str,
                   actor_family: str, actor_name: str,
                   function: str,
                   actor_args: dict,
-                  function_args: dict) -> str:
+                  function_args: dict,
+                  log_args: dict = {}) -> str:
         def execute():
             match self.implementation:
                 case Implementation.ACTORS:
@@ -92,4 +124,8 @@ class Console:
                         result=True,
                     )
 
-        return self.logger.log(label, execute)
+        return self.logger.log(execute, {
+            'action': function,
+            'implementation': self.implementation.name,
+            **log_args
+        })

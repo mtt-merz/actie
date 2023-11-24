@@ -11,20 +11,6 @@ class User(Actor):
     def __init__(self) -> None:
         self.topics: dict[str, TopicData] = {}
 
-    def add_content(self, content: dict) -> str:
-        topic = self.sender.name
-
-        self.topics[topic].contents.append(content)
-
-        contents = self.topics[topic].contents
-        policy = self.topics[topic].policy
-        if len(contents) < policy:
-            return (f"Topic '{topic}' no aggregation performed: " +
-                    f"missing {policy - len(contents)} content(s)")
-
-        del self.topics[topic]
-        return f"Topic '{topic}' aggregation: {contents}"
-
     def subscribe(self, topic: str, policy: int = 1) -> str:
         if topic in self.topics:
             return f"Already subscribed to topic '{topic}'"
@@ -56,5 +42,26 @@ class User(Actor):
             return f"Not subscribed to topic '{topic}'"
 
         self.topics[topic].policy = policy
-
         return f"Policy set for topic '{topic}' to {policy}"
+
+    def add_content(self, content: dict) -> str:
+        topic = self.sender.name
+        if topic not in self.topics:
+            return f"Not subscribed to topic '{topic}'"
+
+        self.topics[topic].contents.append(content)
+
+        return f"Content added to topic '{topic}'"
+
+    def aggregate(self, topic: str) -> str:
+        if topic not in self.topics:
+            return f"Not subscribed to topic '{topic}'"
+
+        contents = self.topics[topic].contents
+        policy = self.topics[topic].policy
+        if len(contents) < policy:
+            return (f"Topic '{topic}' no aggregation performed: " +
+                    f"missing {policy - len(contents)} content(s)")
+
+        del self.topics[topic]
+        return f"Topic '{topic}' aggregation: {contents}"

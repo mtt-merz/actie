@@ -14,16 +14,19 @@ class Logger:
         date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.file_name = join_paths(log_dir, f'{date}.csv')
 
-    def log(self, message: str, execute) -> str:
-        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    def log(self, execute, args: dict) -> str:
+        args['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         start_time = time()
         result = execute()
         end_time = time()
 
-        duration = (end_time - start_time)*1000
+        args['duration'] = (end_time - start_time)*1000
+        args['result'] = result
 
         with open(self.file_name, 'a') as f:
-            f.write(f'{date}; {duration}; {message}; {result}\n')
+            f.write(
+                '; '.join([f'{k}={v}' for k, v in args.items()]) + '\n'
+            )
 
         return result
