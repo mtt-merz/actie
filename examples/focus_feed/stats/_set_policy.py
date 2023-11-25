@@ -9,12 +9,12 @@ from logger import Logger
 # Set the user policy for 500 times, to an increasing number
 # 
 # - set_policy/BASE__2023-11-25_09-18-18.csv
-# - set_policy/.csv (no persist)
-# - set_policy/.csv (persist)
+# - set_policy/ACTIE__2023-11-25_13-17-09.csv (no persist)
+# - set_policy/ACTIE__2023-11-25_13-33-50.csv (persist)
 
 console = Console(
     name='set_policy',
-    implementation=Implementation.base
+    implementation=Implementation.actie
 )
 
 for i in range(500):
@@ -27,7 +27,7 @@ for i in range(500):
             users=1,
             articles=0,
             subcriptions=1,
-            persist=False
+            persist=True
         )
     )
 
