@@ -5,13 +5,16 @@ from console import Console, Implementation, LogArgs
 from logger import Logger
 
 # aggregate with different user policies:
-#1 policy = 1
-#2 policy = 10
-#3 policy = 100
-#4 policy = 1000
+#1 policy = 1000
+#2 policy = 100
+#3 policy = 1
 # for each experiment, repeat the calculation 100 times
 
-# EXPERIMENT #1 - aggregate/
+# EXPERIMENT #1 - aggregate/BASE__2023-11-25_09-54-18.csv
+
+# EXPERIMENT #2 - aggregate/BASE__2023-11-25_09-59-31.csv
+
+# EXPERIMENT #3 - aggregate/BASE__2023-11-25_10-04-03.csv
 
 console = Console(
     name='aggregate',
