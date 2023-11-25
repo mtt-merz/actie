@@ -11,7 +11,7 @@ from logger import Logger
 #
 # - log/unsubscribe/BASE__2023-11-25_07-53-54.csv
 # - log/unsubscribe/ACTIE__2023-11-25_12-14-22.csv (persist)
-# - log/unsubscribe/.csv (no persist)
+# - log/unsubscribe/ACTIE__2023-11-25_12-53-58.csv (no persist)
 
 console = Console(
     name='unsubscribe',
