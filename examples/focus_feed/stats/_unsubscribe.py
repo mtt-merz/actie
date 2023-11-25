@@ -10,14 +10,14 @@ console = Console(
 )
 
 for i in range(1000):
-    res = console.subscribe(
+    res = console.unsubscribe(
         topic=f"topic{i}",
         user=f"luigi",
         log_args=LogArgs(
             topics=i,
             users=1,
             articles=0,
-            subcriptions=i,
+            subcriptions=1000-i,
             persist=False
         )
     )

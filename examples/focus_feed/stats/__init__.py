@@ -1,2 +1,2 @@
 from logger import Logger
-from console import Console, Implementation
+from console import Console, Implementation, LogArgs

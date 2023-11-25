@@ -6,13 +6,13 @@ from os.path import join as join_paths, exists
 
 
 class Logger:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, impl: str) -> None:
         log_dir = join_paths(getcwd(), 'logs', name)
         if not exists(log_dir):
             mkdir(log_dir)
 
         date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.file_name = join_paths(log_dir, f'{date}.csv')
+        self.file_name = join_paths(log_dir, f'{impl.upper()}__{date}.csv')
 
     def log(self, execute, args: dict) -> str:
         args['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
