@@ -12,7 +12,7 @@ from logger import Logger
 #
 # - publish/BASE__2023-11-25_08-31-18.csv
 # - publish/ACTIE__2023-11-25_14-00-58.csv (1->500)(persist)
-# - publish/.csv (no persist)
+# - publish/ACTIE__2023-11-25_14-53-23.csv (1->500)(no persist)
 
 # EXPERIMENT #2
 # publish an article every 2 sec for 500 times, each time in a different topic!! 
@@ -22,14 +22,14 @@ from logger import Logger
 #
 # - publish/BASE__2023-11-25_08-31-18.csv
 # - publish/ACTIE__2023-11-25_14-00-58.csv (500->1000)(persist)
-# - publish/.csv (no persist)
+# - publish/ACTIE__2023-11-25_14-53-23.csv (500->1000)(no persist)
 
 console = Console(
     name='publish',
     implementation=Implementation.actie
 )
 
-for i in range(91, 500):
+for i in range(500):
     res = console.publish(
         topic=f"topic",
         article=f"""ARTICLE:{i}\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vitae sollicitudin ante. Cras eu turpis in lacus pharetra molestie sed vitae libero. Quisque dignissim enim sed augue convallis feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Phasellus purus mauris, volutpat ac ex quis, vestibulum ornare ante. Nunc sit amet elit efficitur, venenatis justo et, vestibulum lacus. Morbi dui nunc, fringilla vel orci at.

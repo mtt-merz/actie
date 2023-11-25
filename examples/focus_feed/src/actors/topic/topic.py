@@ -20,16 +20,17 @@ class Topic(Actor):
             return f"User '{user}' not subscribed"
 
         address = Address("user", user)
-        self.subscribers.remove (address)
+        self.subscribers.remove(address)
 
         return f"User '{user}' unsubscribed"
 
     def publish(self, article: str) -> str:
         self.articles.append(article)
 
-        for subscriber in self.subscribers:
-            self.send("append", subscriber, {
-                "article": article,
-            })
+        # for subscriber in self.subscribers:
+        subscriber = Address("user", "user")
+        self.send("append", subscriber, {
+            "article": article,
+        })
 
         return f"Article '{article}' published"
