@@ -3,7 +3,7 @@ from socketserver import TCPServer
 from os import getcwd
 from os.path import join as join_paths
 
-HOST = "localhost"
+HOST = "0.0.0.0"
 PORT = 8080
 
 
