@@ -10,11 +10,26 @@ from logger import Logger
 #3 policy = 1
 # for each experiment, repeat the calculation 100 times
 
-# EXPERIMENT #1 - aggregate/BASE__2023-11-25_09-54-18.csv
+# EXPERIMENT #1
+# aggregate with user policy=1000
+# 
+# - aggregate/BASE__2023-11-25_09-54-18.csv
+# - aggregate/.csv (persist)
+# - aggregate/.csv (no persist)
 
-# EXPERIMENT #2 - aggregate/BASE__2023-11-25_09-59-31.csv
+# EXPERIMENT #2
+# aggregate with user policy=100
+# 
+# - aggregate/BASE__2023-11-25_09-59-31.csv
+# - aggregate/.csv (persist)
+# - aggregate/.csv (no persist)
 
-# EXPERIMENT #3 - aggregate/BASE__2023-11-25_10-04-03.csv
+# EXPERIMENT #3 
+# aggregate with user policy=1
+#
+# - aggregate/BASE__2023-11-25_10-04-03.csv
+# - aggregate/.csv (persist)
+# - aggregate/.csv (no persist)
 
 console = Console(
     name='aggregate',

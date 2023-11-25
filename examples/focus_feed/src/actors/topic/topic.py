@@ -27,10 +27,9 @@ class Topic(Actor):
     def publish(self, article: str) -> str:
         self.articles.append(article)
 
-        # for subscriber in self.subscribers:
-        subscriber = Address("user", "user")
-        self.send("append", subscriber, {
-            "article": article,
-        })
+        for subscriber in self.subscribers:
+            self.send("append", subscriber, {
+                "article": article,
+            })
 
         return f"Article '{article}' published"
