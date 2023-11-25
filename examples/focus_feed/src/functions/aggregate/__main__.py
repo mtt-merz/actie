@@ -37,7 +37,7 @@ def main(args) -> dict:
             }
         )
 
-        if len(articles) >= policy:
+        if len(articles) < policy:
             return {"result": f"Topic '{topic}' no aggregation performed for user '{user}':" +
                               f"missing {policy - len(articles)} article(s)"}
 
@@ -45,17 +45,19 @@ def main(args) -> dict:
         articles.sort(key=lambda x: x["published"])
         timestamp = articles[-1]["published"]
         db.update(
-            path=f'subscriptions/{subscription["id"]}',
+            path=f'subscriptions',
+            query={
+                'user_name': f'eq.{user}',
+                'topic': f'eq.{topic}'
+            },
             body={
-                "user": user,
-                "topic": topic,
-                "policy": policy,
-                "last_published": timestamp,
+                # "last_published": timestamp,
+                "last_published": 0,
             }
         )
 
         return {
-            "result": f"Topic '{topic}' aggregation for user '{user}': {articles}"
+            "result": f"Topic '{topic}' aggregation for user '{user}': {len(articles)} article(s)"
         }
 
     except Exception:

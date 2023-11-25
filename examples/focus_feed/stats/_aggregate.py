@@ -9,7 +9,7 @@ from logger import Logger
 #2 policy = 10
 #3 policy = 100
 #4 policy = 1000
-# for each experiment, repeat the calculation 20 times
+# for each experiment, repeat the calculation 100 times
 
 # EXPERIMENT #1 - aggregate/
 
@@ -18,21 +18,21 @@ console = Console(
     implementation=Implementation.base
 )
 
-for i in range(1000):
+for i in range(100):
     res = console.aggregate(
         topic=f"topic",
-        user=f"user{i}",
+        user=f"luigi",
         log_args=LogArgs(
-            topics=i,
+            topics=1,
             users=1,
-            articles=0,
-            subcriptions=1000-i,
+            articles=1000,
+            subcriptions=1,
             persist=False
         )
     )
 
     print(f'{i} -> {res}')
-    time.sleep(2)
+    time.sleep(1)
 
 
 # script to add subscriptions

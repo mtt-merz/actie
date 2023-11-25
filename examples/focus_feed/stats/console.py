@@ -114,7 +114,7 @@ class Console:
             actor_args={
                 'topic': topic,
             },
-            function='set_policy',
+            function='aggregate',
             function_args={
                 'user': user,
                 'topic': topic,

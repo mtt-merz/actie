@@ -3,7 +3,7 @@ from lib import Actor, Address
 
 class Topic(Actor):
     def __init__(self) -> None:
-        self.contents: list[dict] = []
+        self.articles: list[str] = []
         self.subscribers: list[Address] = []
 
     def add_subscriber(self, user: str) -> str:
@@ -24,12 +24,12 @@ class Topic(Actor):
 
         return f"User '{user}' unsubscribed"
 
-    def publish(self, content: dict) -> str:
-        self.contents.append(content)
+    def publish(self, article: str) -> str:
+        self.articles.append(article)
 
         for subscriber in self.subscribers:
             self.send("append", subscriber, {
-                "content": content,
+                "article": article,
             })
 
-        return f"Content '{content}' published"
+        return f"Article '{article}' published"

@@ -4,7 +4,7 @@ from lib import Actor, Address
 class TopicData:
     def __init__(self, policy: int) -> None:
         self.policy = policy
-        self.contents: list[dict] = []
+        self.articles: list[str] = []
 
 
 class User(Actor):
@@ -44,24 +44,24 @@ class User(Actor):
         self.topics[topic].policy = policy
         return f"Policy set for topic '{topic}' to {policy}"
 
-    def add_content(self, content: dict) -> str:
+    def append(self, article: str) -> str:
         topic = self.sender.name
         if topic not in self.topics:
             return f"Not subscribed to topic '{topic}'"
 
-        self.topics[topic].contents.append(content)
+        self.topics[topic].articles.append(article)
 
-        return f"Content added to topic '{topic}'"
+        return f"Article added to topic '{topic}'"
 
     def aggregate(self, topic: str) -> str:
         if topic not in self.topics:
             return f"Not subscribed to topic '{topic}'"
 
-        contents = self.topics[topic].contents
+        articles = self.topics[topic].articles
         policy = self.topics[topic].policy
-        if len(contents) < policy:
+        if len(articles) < policy:
             return (f"Topic '{topic}' no aggregation performed: " +
-                    f"missing {policy - len(contents)} content(s)")
+                    f"missing {policy - len(articles)} article(s)")
 
         del self.topics[topic]
-        return f"Topic '{topic}' aggregation: {contents}"
+        return f"Topic '{topic}' aggregation: {len(articles)} article(s)"
