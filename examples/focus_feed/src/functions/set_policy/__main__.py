@@ -32,7 +32,7 @@ def main(args) -> dict:
                 'user_name': f'eq.{user}'
             },
             body={
-                "policy": policy,
+                "user_policy": policy,
             })
 
         return {
