@@ -4,9 +4,13 @@ import requests
 from console import Console, Implementation, LogArgs
 from logger import Logger
 
-# Set the user policy for 500 times, to an increasing number
 
-# EXPERIMENT #1 - set_policy/BASE__2023-11-25_09-18-18.csv
+# EXPERIMENT #1
+# Set the user policy for 500 times, to an increasing number
+# 
+# - set_policy/BASE__2023-11-25_09-18-18.csv
+# - set_policy/.csv (no persist)
+# - set_policy/.csv (persist)
 
 console = Console(
     name='set_policy',

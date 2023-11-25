@@ -5,32 +5,31 @@ import requests
 from console import Console, Implementation, LogArgs
 from logger import Logger
 
-# a user unsubscribe every 1 sec from a different topic, for 1000 times
 
-# EXPERIMENT #1 - log/unsubscribe/BASE__2023-11-25_07-53-54
-# db usage notes |  07:53    08:14     |
-# -------------------------------------|
-# DISK READ:     |  0B       0B        |
-# DISK WRITE:    |  696KB    942KB     |
-# memory usage:  |  27.16MB  MB   |
+# EXPERIMENT #1
+# a user unsubscribe every 2 sec from a different topic, for 1000 times
+#
+# - log/unsubscribe/BASE__2023-11-25_07-53-54.csv
+# - log/unsubscribe/ACTIE__2023-11-25_12-14-22.csv (persist)
+# - log/unsubscribe/.csv (no persist)
 
 console = Console(
     name='unsubscribe',
-    implementation=Implementation.base
+    implementation=Implementation.actie
 )
 
-for i in range(1000):
+for i in range(500):
     res = console.unsubscribe(
         topic=f"topic{i}",
-        user=f"luigi",
+        user=f"user",
         log_args=LogArgs(
-            topics=i,
+            topics=500,
             users=1,
             articles=0,
-            subcriptions=1000-i,
+            subcriptions=500 - i,
             persist=False
         )
     )
 
     print(f'{i} -> {res}')
-    time.sleep(1)
+    time.sleep(2)

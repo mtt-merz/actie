@@ -17,7 +17,7 @@ from logger import Logger
 #
 # - logs/subscribe/BASE__2023-11-25_07-26-07.csv (500 -> 1000)
 # - logs/subscribe/ACTIE__2023-11-25_10-47-20.csv (no persist)
-# - logs/subscribe/ACTIE__2023-11-25_11-23-09.csv (persist) (500->1000)
+# - logs/subscribe/ACTIE__2023-11-25_11-23-09.csv (persist) (500->00)
 
 console = Console(
     name='subscribe',
