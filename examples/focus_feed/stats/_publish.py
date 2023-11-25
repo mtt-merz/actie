@@ -8,12 +8,12 @@ from logger import Logger
 # the articles are lorem ipsum generated and has a length of 1000 bytes
 # each subscriber has a fixed policy of 50
 
-# EXPERIMENT #1 -
-# db usage notes |  07:53    08:51     |
+# EXPERIMENT #1 - publish/BASE__2023-11-25_08-31-18.csv
+# db usage notes |  08:29    09:07     |
 # -------------------------------------|
 # DISK READ:     |  0B       0B        |
-# DISK WRITE:    |  KB       KB     |
-# memory usage:  |  29.36MB  MB   |
+# DISK WRITE:    |  1.04MB   3.81KB    |
+# data sent:     |  4.45MB   556MB     |
 
 console = Console(
     name='publish',
@@ -35,7 +35,7 @@ for i in range(1000):
     )
 
     print(f'{i} -> {res}')
-    time.sleep(1)
+    time.sleep(2)
 
 
 # script to add subscriptions

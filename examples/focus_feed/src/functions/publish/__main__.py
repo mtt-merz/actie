@@ -39,6 +39,7 @@ def main(args) -> dict:
                 "topic": topic,
                 "user": subscriber["user_name"],
             })
+            break
 
         return {
             "result": f"Article '{article}' published in topic '{topic}'"
