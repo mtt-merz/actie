@@ -2,31 +2,41 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 # Load the dataset
-file_path = 'set_policy.csv'
+file_path = 'publish_different_topics.csv'
 data = pd.read_csv(file_path)
 
-data = data.drop(columns=['Functions'])
+# data = data.drop(columns=['Functions'])
 
 # Function to calculate a polynomial trend line
-def calculate_polynomial_trend_line(data, degree = 3):
+def calculate_polynomial_trend_line(data, degree = 5):
     x = np.arange(len(data))
     z = np.polyfit(x, data, degree)
     return np.poly1d(z)(x)
 
+def moving_average(data, window_size=10):
+    return data.rolling(window=window_size, min_periods=1).mean()
+
+def apply_lowess(data, frac=0.4):
+    # frac is the fraction of data used to compute each smoothed value
+    x = np.arange(len(data))
+    return lowess(data, x, frac=frac)[:, 1]
+
 # Applying a linear regression to each column to find the trend lines
 trend_lines = {}
 for column in data.columns:
-    trend_lines[column] = calculate_polynomial_trend_line(data[column])
+    trend_lines[column] = apply_lowess(data[column])
 
 # Customizing colors for the plots
 colors = {
     'Actie': 'limegreen',
-    'Actie_50': 'green',
-    'Actie_20': 'dodgerblue',
-    'Actie_5': 'blue',
-    'Actie_1': 'blueviolet',
+    # 'Actie_50': 'green',
+    # 'Actie_20': 'dodgerblue',
+    # 'Actie_5': 'blue',
+    'Actie*': 'blueviolet',
+    'Functions': 'red',
 }
 trend_colors = {key: f'{color}' for key, color in colors.items()}
 transparency = 0.5  # Semi-transparent for the original curves
