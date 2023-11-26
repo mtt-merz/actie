@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
 # Load the dataset
-file_path = 'unsubscribe.csv'
+file_path = 'set_policy.csv'
 data = pd.read_csv(file_path)
+
+data = data.drop(columns=['Functions'])
 
 # Function to calculate a polynomial trend line
 def calculate_polynomial_trend_line(data, degree = 3):
@@ -20,11 +22,13 @@ for column in data.columns:
 
 # Customizing colors for the plots
 colors = {
-    'Actie': 'green',
-    'Actie*': 'blue',
-    'Functions': 'red'
+    'Actie': 'limegreen',
+    'Actie_50': 'green',
+    'Actie_20': 'dodgerblue',
+    'Actie_5': 'blue',
+    'Actie_1': 'blueviolet',
 }
-trend_colors = {key: f'dark{color}' for key, color in colors.items()}
+trend_colors = {key: f'{color}' for key, color in colors.items()}
 transparency = 0.5  # Semi-transparent for the original curves
 
 # Adjusting the size of the subplots: line plot to take 3/4 of the horizontal space, and the box plot 1/4
@@ -35,10 +39,9 @@ for column, color in colors.items():
     axes[0].plot(data[column], label=f'{column}', color=color, alpha=transparency)
     axes[0].plot(trend_lines[column], linestyle='-', color=trend_colors[column], linewidth=3)  # Bolder trend lines
 
-axes[0].set_title('Line Plot with Trends')
-axes[0].set_xlabel('Observations')
-axes[0].set_ylabel('Duration')
-axes[0].legend(loc='upper right')
+axes[0].set_xlabel('Observations', fontsize=16)
+axes[0].set_ylabel('Duration', fontsize=16)
+axes[0].legend(loc='upper right', fontsize=16)
 
 # Box Plot with matching colors
 for i, column in enumerate(data.columns):
@@ -46,7 +49,6 @@ for i, column in enumerate(data.columns):
                  medianprops=dict(color=colors[column]), whiskerprops=dict(color=colors[column]), 
                  capprops=dict(color=colors[column]), flierprops=dict(markeredgecolor=colors[column]))
 
-axes[1].set_title('Box Plot')
 axes[1].set_xticklabels(data.columns, rotation=45)
 
 # Adjusting the y-axis limits to focus on the most relevant part
