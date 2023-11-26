@@ -49,12 +49,3 @@ def main(args) -> dict:
         return {
             "error": traceback.format_exc()
         }
-
-
-def test():
-    result = main({
-        "topic": "tech",
-        "article": "ciriciao",
-    })
-
-    print(json.dumps(result, indent=2))
