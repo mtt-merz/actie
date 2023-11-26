@@ -7,17 +7,22 @@ from scipy.stats import linregress
 file_path = 'unsubscribe.csv'
 data = pd.read_csv(file_path)
 
+# Function to calculate a polynomial trend line
+def calculate_polynomial_trend_line(data, degree = 3):
+    x = np.arange(len(data))
+    z = np.polyfit(x, data, degree)
+    return np.poly1d(z)(x)
+
 # Applying a linear regression to each column to find the trend lines
 trend_lines = {}
 for column in data.columns:
-    slope, intercept, _, _, _ = linregress(np.arange(len(data)), data[column])
-    trend_lines[column] = intercept + slope * np.arange(len(data))
+    trend_lines[column] = calculate_polynomial_trend_line(data[column])
 
 # Customizing colors for the plots
 colors = {
-    'ACTIE Duration (Green)': 'green',
-    'ACTIE Persist Duration (Blue)': 'blue',
-    'BASE Duration (Red)': 'red'
+    'Actie': 'green',
+    'Actie*': 'blue',
+    'Functions': 'red'
 }
 trend_colors = {key: f'dark{color}' for key, color in colors.items()}
 transparency = 0.5  # Semi-transparent for the original curves
@@ -28,7 +33,7 @@ fig, axes = plt.subplots(1, 2, figsize=(15, 6), gridspec_kw={'width_ratios': [3,
 # Line Plot with Trend Lines
 for column, color in colors.items():
     axes[0].plot(data[column], label=f'{column}', color=color, alpha=transparency)
-    axes[0].plot(trend_lines[column], linestyle='--', color=trend_colors[column], linewidth=3)  # Bolder trend lines
+    axes[0].plot(trend_lines[column], linestyle='-', color=trend_colors[column], linewidth=3)  # Bolder trend lines
 
 axes[0].set_title('Line Plot with Trends')
 axes[0].set_xlabel('Observations')
