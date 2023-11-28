@@ -5,3 +5,5 @@ egg-info/
 .vscode/
 config.json
 db.conf
+raw/
+*.zip
