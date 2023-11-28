@@ -28,7 +28,7 @@ def create(project_name: str = typer.Argument(...)) -> None:
 
     project_path = join_paths(getcwd(), project_name)
 
-    if (exists(project_path)):
+    if exists(project_path):
         # TODO: Cut this off, when not in development
         rmtree(project_path)
         # typer.echo(
@@ -41,7 +41,7 @@ def create(project_name: str = typer.Argument(...)) -> None:
     # Move library
     copy_tree(
         get_path(lib),
-        join_paths(project_path, "lib")
+        join_paths(project_path, "lib"),
     )
 
     # Move sample actor
@@ -53,7 +53,7 @@ def create(project_name: str = typer.Argument(...)) -> None:
     # Move config
     copyfile(
         join_paths(get_path(resources), "config"),
-        join_paths(project_path, "config.json")
+        join_paths(project_path, "config.json"),
     )
 
     typer.echo("Adding files...")
@@ -88,7 +88,7 @@ def build() -> None:
     typer.echo(f"Start building...")
 
     build_path = join_paths(getcwd(), "build")
-    if (exists(build_path)):
+    if exists(build_path):
         remove_tree(build_path)
     mkdir(build_path)
 
@@ -107,19 +107,19 @@ def build() -> None:
         # Move actor code
         copy_tree(
             join_paths(getcwd(), "src", "actors", actor),
-            actor_build_path
+            actor_build_path,
         )
 
         # Move internal libraries
         copy_tree(
             get_path(lib),
-            join_paths(actor_build_path, "lib")
+            join_paths(actor_build_path, "lib"),
         )
 
         # Move configs
         copyfile(
             join_paths(getcwd(), "config.json"),
-            join_paths(actor_build_path, "config.json")
+            join_paths(actor_build_path, "config.json"),
         )
 
         typer.echo("Adding files...")
@@ -127,8 +127,7 @@ def build() -> None:
         # Add {actor_build_path}/__main__.py
         main_in_path = join_paths(get_path(resources), "__main__.py")
         main_out_path = join_paths(actor_build_path, "__main__.py")
-        with open(main_in_path, "r") as f_in, \
-                open(main_out_path, "w") as f_out:
+        with open(main_in_path, "r") as f_in, open(main_out_path, "w") as f_out:
             code = f_in.read()
             code = code.replace("__actor__", actor)
             code = code.replace("__Actor__", actor.capitalize())
@@ -173,8 +172,9 @@ def deploy() -> None:
 
         # Archive all files
         archive_path = make_archive(
-            join_paths(actor_build_path, actor), "zip",
-            root_dir=actor_build_path
+            join_paths(actor_build_path, actor),
+            "zip",
+            root_dir=actor_build_path,
         )
 
         # Deploy actors
@@ -198,13 +198,6 @@ def deploy() -> None:
             typer.echo(json.dumps(res, indent=2))
 
     typer.echo("All actors deployed")
-
-    # # Execute entrypoint
-    # typer.echo("\nStart running project...")
-    # main_path = join_paths(getcwd(), "src", "__main__.py")
-    # with open(main_path, "r") as f:
-    #     compiled_code = compile(f.read(), "<string>", "exec")
-    #     exec(compiled_code)
 
 
 @app.command()

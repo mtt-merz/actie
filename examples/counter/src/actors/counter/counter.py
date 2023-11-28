@@ -8,8 +8,6 @@ class Counter(Actor):
     def increment(self, value: int = 1) -> str:
         old_value = self.value
         self.value += value
-        # if (self.value < 5):
-        #     self.send(self.family, self.name, msg)
 
         new_value = self.value
         return f'Value incremented from {old_value} to {new_value}'

@@ -18,7 +18,7 @@ class OpenWhisk:
             f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}",
             auth=(self.auth[0], self.auth[1]),
             headers={
-                "content-type": "application/json"
+                "content-type": "application/json",
             },
             params={
                 "overwrite": True,
@@ -29,13 +29,15 @@ class OpenWhisk:
                 "exec": {
                     "kind": "python:3.10",
                     "code": code,
-                    "binary": True
+                    "binary": True,
                 },
-                "annotations": [{
-                    "key": "provide-api-key",
-                    "value": True
-                }]
-            }
+                "annotations": [
+                    {
+                        "key": "provide-api-key",
+                        "value": True,
+                    }
+                ],
+            },
         )
 
         return json.loads(res.content)
@@ -45,7 +47,7 @@ class OpenWhisk:
             f"{self.api_host}/api/v1/namespaces/{self.namespace}/actions/{action}",
             auth=(self.auth[0], self.auth[1]),
             headers={
-                "content-type": "application/json"
+                "content-type": "application/json",
             },
             params={
                 "blocking": result,
@@ -55,16 +57,6 @@ class OpenWhisk:
         )
 
         return json.loads(res.content)
-
-    def invoke_actor(self, family: str, name: str, message: dict, result: bool = False) -> dict:
-        return self.invoke(
-            action=family,
-            body={
-                "actor_name": name,
-                "message": message,
-            },
-            result=result,
-        )
 
 
 def init_openwhisk() -> OpenWhisk:

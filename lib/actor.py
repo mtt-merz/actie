@@ -48,17 +48,19 @@ class Actor:
 
         return str(result)
 
-    def send(self, action: str, recipient: Address,  args: dict = {}) -> None:
+    def send(self, action: str, recipient: Address, args: dict = {}) -> None:
         if self.is_isolated:
             return
 
-        self.wsk.invoke_actor(
-            family=recipient.family,
-            name=recipient.name,
-            message={
-                "action": action,
-                "args": args,
-                "sender": str(self),
+        self.wsk.invoke(
+            action=recipient.family,
+            body={
+                "actor_name": recipient.name,
+                "message": {
+                    "action": action,
+                    "args": args,
+                    "sender": str(self),
+                },
             },
         )
 
