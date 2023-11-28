@@ -8,16 +8,7 @@ from statsmodels.nonparametric.smoothers_lowess import lowess
 file_path = 'publish_different_topics.csv'
 data = pd.read_csv(file_path)
 
-# data = data.drop(columns=['Functions'])
-
-# Function to calculate a polynomial trend line
-def calculate_polynomial_trend_line(data, degree = 5):
-    x = np.arange(len(data))
-    z = np.polyfit(x, data, degree)
-    return np.poly1d(z)(x)
-
-def moving_average(data, window_size=10):
-    return data.rolling(window=window_size, min_periods=1).mean()
+# data = data.drop(columns=['S2'])
 
 def apply_lowess(data, frac=0.4):
     # frac is the fraction of data used to compute each smoothed value
@@ -31,15 +22,15 @@ for column in data.columns:
 
 # Customizing colors for the plots
 colors = {
-    'Actie': 'limegreen',
-    # 'Actie_50': 'green',
-    # 'Actie_20': 'dodgerblue',
-    # 'Actie_5': 'blue',
-    'Actie*': 'blueviolet',
-    'Functions': 'red',
+    'S1': 'limegreen',
+    # 'S1_50': 'green',
+    # 'S1_20': 'dodgerblue',
+    # 'S1_5': 'blue',
+    'S1*': 'blueviolet',
+    'S2': 'red',
 }
 trend_colors = {key: f'{color}' for key, color in colors.items()}
-transparency = 0.5  # Semi-transparent for the original curves
+transparency = 0.3  # Semi-transparent for the original curves
 
 # Adjusting the size of the subplots: line plot to take 3/4 of the horizontal space, and the box plot 1/4
 fig, axes = plt.subplots(1, 2, figsize=(15, 6), gridspec_kw={'width_ratios': [3, 1]})
@@ -59,7 +50,7 @@ for i, column in enumerate(data.columns):
                  medianprops=dict(color=colors[column]), whiskerprops=dict(color=colors[column]), 
                  capprops=dict(color=colors[column]), flierprops=dict(markeredgecolor=colors[column]))
 
-axes[1].set_xticklabels(data.columns, rotation=45)
+axes[1].set_xticklabels(data.columns)
 
 # Adjusting the y-axis limits to focus on the most relevant part
 relevant_range = data.quantile([0.05, 0.95]).values
