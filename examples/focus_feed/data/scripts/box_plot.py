@@ -3,18 +3,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the dataset
-file_path = '../aggregate_policy_1000.csv'
+file_path = '../set_policy.csv'
 data = pd.read_csv(file_path)
+
+# data = data.drop(columns=['S1*'])
 
 # Adjusting the y-axis limits to focus on the most relevant part
 relevant_range = data.quantile([0.05, 0.95]).values
 ymin, ymax = relevant_range.min(), relevant_range.max()
 
 # Plotting the horizontal box plot with reduced height
-plt.figure(figsize=(10, 3))  # Reduced height to 4 inches
+plt.figure(figsize=(4, 3))  # Reduced height to 4 inches
 sns.boxplot(data=data, orient='h')  # Horizontal box plot
 plt.xlabel('Duration')
-plt.xlim(0, 550)
+plt.xlim(0, 450)
 plt.yticks()
 plt.tight_layout()
 plt.show()

@@ -30,7 +30,6 @@ def main(args) -> dict:
                 'topic': f'eq.{topic}'
             },
         )
-        print(subscribers)
 
         # call aggregate for each subriber
         wsk = init_openwhisk()
@@ -39,7 +38,6 @@ def main(args) -> dict:
                 "topic": topic,
                 "user": subscriber["user_name"],
             })
-            break
 
         return {
             "result": f"Article '{article}' published in topic '{topic}'"
